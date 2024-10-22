@@ -1,0 +1,36 @@
+body{
+  background: url(/img/bg.png);
+  font-family: Helvetica, Arial, "Lucida Grande", sans-serif;
+  font-weight: 300;
+  text-align: left;
+  text-decoration: none;
+  /*height: 500px;*/
+}
+.wrapper-login{
+    /*width: 600px;
+    height: 600px;
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    padding: 15px;
+    margin-left: -300px;
+    margin-top: -260px;*/
+    z-index: -2;
+    background-image: url(/img/gradient.png);
+    background-repeat: no-repeat;
+    /*background-image: -webkit-gradient(radial, 0% 0%, 0% 100%, from(rgba(213,246,255,1)), to(rgba(213,246,255,0)));*/
+        background-image: -webkit-radial-gradient(50% 57%, 22% 40%, rgba(213,246,255,1), rgba(213,246,255,0));
+    background-image: -webkit-radial-gradient(50% 50%, 22% 40%, rgba(213,246,255,1), rgba(213,246,255,0));
+    background-image: -moz-radial-gradient(50% 50%, 22% 50%, rgba(213,246,255,1), rgba(213,246,255,0));
+    background-image: -ms-radial-gradient(50% 50%, 22% 50%, rgba(213,246,255,1), rgba(213,246,255,0));
+    background-image: -o-radial-gradient(50% 50%, 22% 50%, rgba(213,246,255,1), rgba(213,246,255,0));
+}
+#login-nav{
+    background-color: #3B5998 !important;
+    height: 10%;
+    font-family: 'Abel', sans-serif;
+    color: white;
+}
+#email, #password{
+  /*padding-left: 50px;*/
+}

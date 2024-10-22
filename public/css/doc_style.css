@@ -1,0 +1,39 @@
+.navbar-nav>li>a{
+  color:#ffff;
+  transition: border .2s ease-out,color .2s ease-out;
+}
+.navbar-nav>li>a:hover{
+	background: none !important;
+	color: #ddd !important;
+}
+.navbar-nav>li{
+	border-bottom:4px solid #dff0;
+    margin-bottom: -1px;
+    transition: border .2s ease-out,color .2s ease-out;
+}
+.navbar-nav>li:hover{
+	border-bottom:4px solid white;
+}
+.navbar-inverse .navbar-toggle .icon-bar{
+	background-color: white !important;
+}
+
+ul.sidebar-menu li.treeview a span.menu{
+	color: black;
+}
+
+.treeview-menu>li.active a{
+	color: #0c5178;
+	font-weight: 700;
+}
+
+@media (min-width: 768px) {
+	.navbar-nav>li {
+	     float: none; 
+	    display: inline-block;
+	}
+
+	.navbar-nav {
+		float: none;
+	}
+}
