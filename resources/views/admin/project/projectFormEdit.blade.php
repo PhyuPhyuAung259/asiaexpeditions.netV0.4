@@ -451,8 +451,8 @@ $subactive ='booking/project';
                   </td>
                   <td>
                     <select class="form-control" name="country_id[]" required>
-                      @foreach(App\Country::where(['country_status'=> 1])->orderBy('country_name')->orderBY('country_name')->get() as $con)
-                        <option value="{{$con->id}}">{{$con->country_name}}</option>
+                      @foreach(App\Country::where(['country_status'=> 1])->whereNotNull('nationality')->orderBY('nationality')->get() as $con)
+                        <option value="{{$con->id}}">{{$con->nationality}}</option>
                       @endforeach
                     </select>
                   </td>
