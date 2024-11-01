@@ -282,7 +282,7 @@ Route::group(['middleware' => ['IsLogin']], function(){
 		Route::get('operation/{type}/voucher/{projectNo}/{ospBid}', 'Admin\OperationController@opsVoucher')->name('opsVoucher');
 		Route::get('operation/{type}/reservation/{projectNo}/{ospBid}', 'Admin\OperationController@opsReservation')->name('opsReservation');
 		Route::get('booking/{operation}/{project}', 'Admin\OperationController@applyOperation')->name('getops');
-		Route::get('booking/transport/{project}/{supplier_id}', 'Admin\OperationController@bookingTransport')->name('getBookingVoucher');
+		Route::get('booking/{type}/{project}/{supplier_id}', 'Admin\OperationController@bookingTransport')->name('getBookingVoucher');
 		Route::post('booking/applied/transport', 'Admin\OperationController@assignTransport')->name('assignTransport');
 		Route::post('booking/applied/restuatant', 'Admin\OperationController@assignResturant')->name('assignRestuarant');
 		Route::post('booking/applied/entrance', 'Admin\OperationController@assignEntrance')->name('assignEntrance');

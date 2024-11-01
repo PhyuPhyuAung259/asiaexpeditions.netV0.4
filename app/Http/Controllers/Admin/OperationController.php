@@ -67,11 +67,22 @@ class OperationController extends Controller
         }
     }
 
-    public function bookingTransport($projectNo, $supplier_id = 0){
-        $project = Project::where("project_number",$projectNo)->first();
-        $book = Booking::find($supplier_id);
-        $btransport = BookTransport::where(['project_number'=>$projectNo,'book_id'=>$supplier_id])->first();
-        return view("admin.report.transport_booking_form", compact("book","project", "btransport"));
+    public function bookingTransport(Request $req,$type,$projectNo, $supplier_id = 0){
+        if($type==="Transport"){
+            $project = Project::where("project_number",$projectNo)->first();
+            $book = Booking::find($supplier_id);
+            $btransport = BookTransport::where(['project_number'=>$projectNo,'book_id'=>$supplier_id])->first();
+            return view("admin.report.transport_booking_form", compact("book","project", "btransport"));
+        }else{
+            $project = Project::where("project_number",$projectNo)->first();
+            //dd($project->project_client);
+            $book = Booking::find($supplier_id);
+        
+           
+            return view("admin.report.tour_booking_form", compact("book","project"));	
+           
+        }
+        
     }
 
     public function assignTransport(Request $req){

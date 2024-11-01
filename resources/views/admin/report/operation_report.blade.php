@@ -395,6 +395,54 @@
 								<td colspan="11" class="text-right"><h5><strong>Total {{Content::currency()}} : {{Content::money($cruiseBook->sum('net_amount'))}}</strong></h5></td>
 							</tr>
 					@endif
+					<!-- Tour start-->
+					<?php 
+						$tourNetPrice = \App\Booking::tourNetPrice($project->project_number); 
+						$tourTotal =0; 	
+					?>
+						<tr><th colspan="11" style="border-top:none;"><div><strong style="text-transform: capitalize;">Tour expenses</strong></div></th></tr>
+						<tr style="background-color:#f4f4f4;">
+							<th width="110px">Date</th>
+							<th colspan="7">Title</th>
+							<th>Pax</th>
+							<th class="text-right" width="160px" >Price {{Content::currency()}}</th>
+							<!-- <th class="text-right" width="160px" >Price {{Content::currency(1)}}</th> -->
+							<th>Amount</th>
+							<th>Operation</th>
+						</tr>	
+						@foreach($tourNetPrice->get() as $tour)
+						<?php
+							$amount=$tour->book_pax * $tour->nprice;
+							$tourTotal = $tourTotal + $amount; 
+						?>
+							<tr>
+							<td>
+									<label class="container-CheckBox">{{Content::dateformat($tour->book_checkin)}}
+									  	<input type="checkbox" class="checkall" name="checkedtransport[]" value="{{isset($btran->id) ? $btran->id : '' }}" >
+									  	<span class="checkmark"></span>
+									</label>
+								</td>
+								<td colspan="7">{{{$tour->tour_name or ''}}}</td>
+								<td class="text-right" width="160px" >{{{$tour->book_pax or ''}}}</td>
+								<td class="text-right" width="160px" >{{{$tour->nprice}}}</td>
+								<!-- <td class="text-right" width="160px" >{{{$tour->nprice}}}</td> -->
+								<td>{{{$amount or ''}}}</td>
+								<td> 
+									 <a target="_blank" href="{{route('getBookingVoucher', ['type'=>'Tour',$tour->book_project, $tour->id])}}" title="View Booking Voucher">
+							               	<label class="fa fa-list-alt btn btn-xs" style="font-size:17px; color: #527686;"></label>
+							            </a> 
+								</td>
+							</tr>
+						@endforeach
+						<tr>
+						<td colspan="11" class="text-right">
+								
+									<h5><strong>Total {{Content::currency()}}: {{Content::money($tourTotal)}}</strong></h5>
+								
+								
+							</td>
+						</tr>
+					<!--  Tour end-->
 					<!-- Transport Start-->
 					<?php 
 						$tranBook = \App\Booking::tourBook($project->project_number); 
@@ -452,7 +500,7 @@
 									 <a target="_blank" href="{{route('editoperation', ['type'=>'Transport', 'id'=>$tran->id, 'project_no'=>$tran->book_project , 'tour_id'=>$tran->tour_id, 'sub_type'=>'additional transport'])}}" title="Additional Transport">
                                 			<label class="icon-list ic_book_add"></label>
                              			</a>&nbsp;
-									 <a target="_blank" href="{{route('getBookingVoucher', [$tran->book_project, $tran->id])}}" title="View Transport Booking">
+									 <a target="_blank" href="{{route('getBookingVoucher', ['type'=>'Transport',$tran->book_project, $tran->id])}}" title="View Transport Booking">
 							               	<label class="fa fa-list-alt btn btn-xs" style="font-size:17px; color: #527686;"></label>
 							            </a>  
 								</td>
@@ -533,9 +581,7 @@
 										 <a target="_blank" href="{{route('editguideoperation', ['type'=>'guide', 'project_no'=>$tran->book_project, 'id'=>$tran->id , 'tour_id'=>$tran->tour_id, 'sub_type'=>'additional guide'])}}" title="Additional Guide">
                                 			<label class="icon-list ic_book_add"></label>
                              			</a>&nbsp;
-										 <!-- <a target="_blank" href="{{route('getBookingVoucher', [$tran->book_project, $tran->id])}}" title="View Transport Booking">
-							               	<label class="fa fa-list-alt btn btn-xs"></label>
-							            </a>  </td> -->
+										
 								</td>
 							</tr>				
 							@endforeach
@@ -783,7 +829,7 @@
 
 				@if($Probooked->count() > 0 )
 					<?php 
-						$grandtotal = ($hotelBook->sum('net_amount') + $flightBook->sum('book_namount') + $golfBook->sum('book_namount') + $cruiseBook->sum('net_amount') + $restBook->sum('amount') + $EntranceBook->sum('amount')) + $transportTotal + $guidTotal + $miscTotal;
+						$grandtotal = ($hotelBook->sum('net_amount') + $flightBook->sum('book_namount') + $golfBook->sum('book_namount') + $cruiseBook->sum('net_amount') + $restBook->sum('amount') + $EntranceBook->sum('amount')) + $transportTotal + $guidTotal + $miscTotal+$tourTotal;
 						$grandktotal = ($flightBook->sum('book_kamount') + $golfBook->sum('book_nkamount') + $restBook->sum('kamount') + $EntranceBook->sum('kamount')) + $transportkTotal + $guidkTotal + $misckTotal;
 					?>
 						<!-- End MISC -->

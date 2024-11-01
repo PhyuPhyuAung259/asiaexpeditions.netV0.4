@@ -238,4 +238,14 @@ class Booking extends Model
         }
         return $projects; 
     }
+
+    public static function tourNetPrice($projectNum,$option=0){
+        $tourNetPrice=\DB::table('booking')
+                    ->join('tours','tours.id','=','booking.tour_id')
+                    ->join('tour_price','tour_price.tour_id','=','booking.tour_id')
+                    ->select('tours.*',"tour_price.*","booking.*")
+                    ->where(['booking.book_project'=>$projectNum, "booking.book_status"=>1,"booking.book_option"=>$option])
+                    ->groupBy('booking.id');            
+        return $tourNetPrice;
+    }
 }
