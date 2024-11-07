@@ -241,4 +241,10 @@ class SupplierController extends Controller
             return view('admin.report.restaurant_info', compact('suppliers'));
         }
     }
+
+    public function getsupplierbybus(Request $req,$bus_id){
+        $supplier=Supplier::where(['business_id'=>$bus_id,'country_id'=>$req->country_id])->orderBy('supplier_name', 'asc')->get();
+      
+        return response()->json($supplier);
+    }
 }

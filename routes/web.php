@@ -300,7 +300,8 @@ Route::group(['middleware' => ['IsLogin']], function(){
 		Route::post("window/uploadfile/only", 'Admin\UploadController@uploadOnlyFile')->name('uploadOnlyFile');
 		Route::get("window/remove-image/logo", 'Admin\UploadController@RemoveLogo')->name('RemoveLogo');
 		
-		
+		//SupplierbyBusiness_id
+		Route::get("supplierbybus/{bus_id}",'Admin\SupplierController@getsupplierbybus');
 		//chartofAccount
 		Route::get('chartofaccount', 'Account\AccountController@chartofAccount')->name('chartofaccount');	
 		Route::get('account/accForm', 'Account\AccountController@accForm')->name('accForm');

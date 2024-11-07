@@ -31,7 +31,7 @@
                       <div class="col-md-2 col-xs-6">
                         <div class="form-group">
                           <label>Country</label>
-                          <select class="form-control location" name="country" data-type="country">
+                          <select class="form-control location" name="country" data-type="country" id="country">
                             @foreach(App\Country::countryByProject() as $key => $con)
                             <option value="{{$con->id}}" {{$con->id == Auth::user()->country_id ? 'selected' : ' '}}>{{$con->country_name}}</option>
                             @endforeach()
@@ -58,7 +58,7 @@
                       <tbody id="data_payment_option">
                         <tr class="clone-data">
                           <td>
-                            <select class="form-control input-sm business" name="business[]" data-type="sup_by_bus" required="">
+                            <select class="form-control input-sm business" name="business[]" data-type="sup_by_bus" id="business" required="">
                               <option value="0">--choose--</option>
                               @foreach(App\Business::where(['category_id'=>0, 'status'=>1])->get() as $key => $bn)
                                 <option value="{{$bn->id}}">{{$bn->name}}</option>
@@ -66,7 +66,10 @@
                             </select>
                           </td>
                           <td style="position: relative;">
-                            <select class="form-control suppliers input-sm" name="supplier[]" id="dropdown_supplier" required=""></select>
+                          <!-- <select class="form-control suppliers input-sm" name="supplier[]" id="dropdown_supplier" required=""></select> -->
+                            <select class="form-control suppliers input-sm" name="supplier[]" id="supplier" required>
+                              <option value="">Select a supplier</option>
+                            </select>  
                           </td>
                           <td>
                             <select class="form-control account_type input-sm" name="account_type[]" data-multiType="account_name_journal" data-type="account_name" required="">
@@ -216,6 +219,33 @@
 </div> 
 
 @include("admin.account.accountant")  
+
+<script >
+  $(document).ready(function() {
+            $('#business').change(function() {
+                var bus_id = $(this).val();
+                var country_id = $('#country').val(); 
+                console.log(country_id);
+                $.ajax({
+                    url: '/supplierbybus/' + bus_id + '?country_id=' + country_id, // Adding country_id as query parameter
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function(response) {                   
+                        var supplierSelect = $('#supplier');
+                        supplierSelect.empty();
+                        if (response.length === 0) {
+                          supplierSelect.append('<option value="">No supplier available</option>');
+                        } else {
+                            $.each(response, function(key, value) {
+                              supplierSelect.append('<option value="' + value.id + '">' +
+                                    value.supplier_name + '</option>');
+                            });
+                        }
+                    }
+                });
+            });
+        });
+</script>
 <script type="text/javascript">
   // $(document).ready(function(){
 
@@ -238,4 +268,3 @@
 </script>
 
 @endsection
-
