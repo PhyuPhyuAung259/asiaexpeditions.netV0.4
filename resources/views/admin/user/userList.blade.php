@@ -41,7 +41,7 @@
                       <td>{{$user->password_text}}</td>
                       <td>{{{ $user->role->name or ''}}}</td> 
                       <td>{{Content::dateformat($user->created_at)}}</td>   
-                      <td>{!!$user->banned==1? "<label class='label label-default'>Deactive<label>": "<label class='label label-success'>Active</label>"!!}</td>      
+                      <td>{!!$user->banned==0? "<label class='label label-default'>Deactive<label>": "<label class='label label-success'>Active</label>"!!}</td>      
                       <td class="text-right">                      
                         <a target="_blank" href="{{route('userStore', ['id'=> $user->id])}}" class="btn btn-info btn-xs " title="Change User Info">
                          <i class="fa fa-edit"></i>

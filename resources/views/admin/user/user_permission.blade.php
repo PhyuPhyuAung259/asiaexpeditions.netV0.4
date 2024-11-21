@@ -70,8 +70,8 @@ $subactive ='user/register';
                   <div class="col-md-6 col-xs-6">
                     <div class="form-group">
                       <div><label>Status</label></div>
-                      <label style="font-weight:400;"> <input type="radio" name="banned" value="1" {{$user->banned==1? 'checked':''}}> Inactive</label>&nbsp;&nbsp;
-                      <label style="font-weight:400;"> <input type="radio" name="banned" value="0" {{$user->banned==0? 'checked':''}}> Active</label>
+                      <label style="font-weight:400;"> <input type="radio" name="banned" value="0" {{$user->banned==0? 'checked':''}}> Inactive</label>&nbsp;&nbsp;
+                      <label style="font-weight:400;"> <input type="radio" name="banned" value="1" {{$user->banned==1? 'checked':''}}> Active</label>
                     </div> 
                   </div>
                 </div>

@@ -13,7 +13,7 @@
           <div class="col-md-2 col-xs-6">
             @if(\Auth::user()->role_id == 2)
               <div class="form-group">
-                <select class="form-control country_account" name="country" data-type="supplier_by_account_transaction">
+                <select class="form-control country_account" name="country" data-type="supplier_by_account_transaction"  id="country">
                   <option>--Choose--</option>
                   @foreach(\App\Country::LocalPayment() as $con)
                     <option value="{{$con->id}}" {{$conId ==$con->id ? 'selected' : ''}}>{{$con->country_name}}</option>
@@ -28,20 +28,20 @@
           </div>
           <div class="col-md-2 col-xs-6">
             <div class="form-group">
-              <select class="form-control country_book_supplier" data-type="supplier_by_account_transaction" required=>
+              <select class="form-control country_book_supplier" data-type="supplier_by_account_transaction" id="business"  name="business" required>
                 <option value="0">--choose--</option>
                 <?php $getBusiness= App\Business::where('status',1)->whereHas('accountTransaction', function($query) {
                   $query->where(['status'=>1]);
                 })->orderBy('name')->get(); ?>
                 @foreach($getBusiness as $key => $bn)
-                    <option value="{{$bn->id}}" {{$supplier['business_id'] == $bn->id ? 'selected':''}}>supplier name</option>
+                    <option value="{{$bn->id}}">{{ $bn->name }}</option>
                 @endforeach
               </select>
             </div>
           </div>
-          <div class="col-md-3 col-xs-12" id="supplier_Name">
+          <div class="col-md-3 col-xs-12">
             <div class="form-group">
-              <div class="btn-group" style='display: block;'>
+              <!-- <div class="btn-group" style='display: block;'>
                 <button type="button" class="form-control arrow-down" data-toggle="dropdown" aria-haspopup="false" aria-expanded='false' data-backdrop="static" data-keyboard="false" role="dialog" data-backdrop="static" data-keyboard="false">
                   <span class="pull-left">{{{ $supplier->supplier_name or ''}}}</span>
                   <span class="pull-right"></span>
@@ -57,7 +57,10 @@
                       @endforeach              
                   </ul>
                 </div>
-              </div>
+              </div> -->
+              <select class="form-control suppliers input-sm" name="supplier[]" id="supplier" >
+                              <option value="">Select a supplier</option>
+                            </select>  
             </div>
           </div>
           <div class="col-md-4 col-xs-12">
@@ -88,7 +91,11 @@
         </div> -->
         <div class="clearfix"></div><br>
         <table class="table tableExcel">
+          <tr   style="background-color: #e8f1ff; color: #3c8dbc;text-align:center; font-size:20;">
+            <th colspan="12" style="text-align:center; font-size:30px;">Oustanding for {{$supplier->supplier_name or ''}}</th>
+          </tr>
           <tr style="background-color: #e8f1ff; color: #3c8dbc;">
+            
             <th width="50">
                <label class="container-CheckBox" style="margin-bottom: 0px;"> No.
                   <input type="checkbox" id="check_all" name="checkbox" >
@@ -276,6 +283,32 @@
 </script>
 <script type="text/javascript" src="{{asset('js/jquery.table2excel.min.js')}}"></script>
 <script type="text/javascript">
+  
+  $(document).ready(function() {
+            $('#business').change(function() {
+                var bus_id = $(this).val();
+                var country_id = $('#country').val(); 
+                console.log(country_id);
+                $.ajax({
+                    url: '/supplierbybus/' + bus_id + '?country_id=' + country_id, // Adding country_id as query parameter
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function(response) {                   
+                        var supplierSelect = $('#supplier');
+                        supplierSelect.empty();
+                        if (response.length === 0) {
+                          supplierSelect.append('<option value="">No supplier available</option>');
+                        } else {
+                            $.each(response, function(key, value) {
+                              supplierSelect.append('<option value="' + value.id + '">' +
+                                    value.supplier_name + '</option>');
+                            });
+                        }
+                    }
+                });
+            });
+        });
+
   $(document).ready(function(){
 
     $(document).on("click", ".PrevViewOutstanding", function(){

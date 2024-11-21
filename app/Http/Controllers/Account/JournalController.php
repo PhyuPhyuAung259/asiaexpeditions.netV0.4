@@ -173,15 +173,26 @@ class JournalController extends Controller
     }
 
     public function getOutstanding(Request $req){
-        $from_date = $this->start_date;
-        $to_date = $this->end_date;
-        $supplier = Supplier::find($req->supplier_name);
+        $from_date = $req->start_date;
+        $to_date = $req->end_date;
+        $supplier = Supplier::where('id',$req->supplier)->first();
         $conId = isset($req->country) ? $req->country : \Auth::user()->country_id;
+        //dd($supplier->supplier_name);
         if($supplier===Null){
+          //   dd('supplier is null');
             $journals= collect();
-        }else{
-            $journals=AccountJournal::where(['status'=>1, 'supplier_id'=>$supplier['id']])->whereBetween('entry_date', [$this->start_date, $this->end_date])
+          //  dd($journals,$supplier, $conId,$from_date,$to_date);
+        }elseif($req->business===Null && $supplier===Null){
+            $journals=AccountJournal::where(['status'=>1])->whereBetween('entry_date', [$from_date, $to_date])
+           ->orderBy('created_at', 'DESC')->get();
+           return view("admin.account.report.previewOutstanding", compact('journals','from_date', 'to_date'));
+
+           //dd('supplier is null but with date');
+        } else{
+            $journals=AccountJournal::where(['status'=>1, 'supplier_id'=>$supplier['id']])->whereBetween('entry_date', [$from_date, $to_date])
                     ->whereNotNull('supplier_id')->orderBy('created_at', 'DESC')->get();
+                    return view("admin.account.report.previewOutstanding", compact('journals','from_date', 'to_date'));
+                   //  dd($journals);
             if (isset($req->journCheck) && !empty($req->journCheck)) {
                 $journals=AccountJournal::whereIn('id', $data)->orderBy('entry_date', 'DESC')->get();
                 return view("admin.account.report.previewOutstanding", compact('journals','from_date', 'to_date'));

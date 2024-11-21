@@ -193,7 +193,7 @@ class AccountController extends Controller
             $acctran->ex_rate_converted  = $total_ex_converted;
             $acctran->payment_voucher = $req->payment_voucher;
             $acctran->type            = $req->type;
-            $acctran->remark  = $req->remark;
+            $acctran->remark   = $req->remark;
             
             if ($acctran->save()) {
                 $secondTran = New AccountTransaction;
@@ -224,7 +224,7 @@ class AccountController extends Controller
                 $secondTran->payment_voucher = $req->payment_voucher;
                 $secondTran->type            = $req->type == 1 ? 2 : 1;
                 $secondTran->remark  = $req->remark;
-             //   dd($secondTran);
+             dd($secondTran);
                 $secondTran->save();
             }
             $messagetype = "success";
