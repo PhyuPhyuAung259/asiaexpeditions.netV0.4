@@ -224,7 +224,7 @@ class AccountController extends Controller
                 $secondTran->payment_voucher = $req->payment_voucher;
                 $secondTran->type            = $req->type == 1 ? 2 : 1;
                 $secondTran->remark  = $req->remark;
-             dd($secondTran);
+           //  dd($secondTran);
                 $secondTran->save();
             }
             $messagetype = "success";

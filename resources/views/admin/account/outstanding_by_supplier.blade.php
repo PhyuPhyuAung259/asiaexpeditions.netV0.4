@@ -1,6 +1,8 @@
 @extends('layout.backend')
 @section('title', 'OutStanding')
 <?php 
+
+use App\Supplier;
   use App\component\Content;
   $comadd = \App\Company::find(1);
 ?>
@@ -28,7 +30,7 @@
           </div>
           <div class="col-md-2 col-xs-6">
             <div class="form-group">
-              <select class="form-control country_book_supplier" data-type="supplier_by_account_transaction" id="business"  name="business" required>
+              <select class="form-control country_book_supplier" data-type="supplier_by_account_transaction" id="business"  name="business" >
                 <option value="0">--choose--</option>
                 <?php $getBusiness= App\Business::where('status',1)->whereHas('accountTransaction', function($query) {
                   $query->where(['status'=>1]);
@@ -105,7 +107,9 @@
             <th title="Invoice Paid Date" width="100">INV Paid Date</th>
             <th width="200">Descriptions</th>
             <th width="75">FileNo.</th>
-            <th>Client Name</th>            
+            <th>Client Name</th>   
+            
+            <th>Supplier</th>         
             <th class="text-right" title="Amount To Pay/Receive">To Pay</th> 
             <th class="text-right">Deposit/Paid </th>
             <th class="text-right" width="112" title="Balance to Pay/Receive">BL To AP/RP</th>            
@@ -116,16 +120,22 @@
           </tr>
             <?php
               $totalBalance = 0;
+              $totalPayBalance=0;
               $totalKBalanceKyat = 0;
+              $totalKPayBalance=0;
               $n=0;
+              $remark="";
             ?>
           <tbody>
               @foreach($journals as $jn)  
                 <?php
                   $transaction = App\AccountTransaction::where(['journal_id'=>$jn->id, 'status'=>1])->whereNotIn('supplier_id',[$jn->supplier_id])->get();
-                 
+                // dd($transaction->credit);
                     $totalBalance = $totalBalance + $transaction->sum('credit');
+                    $totalPayBalance=$totalPayBalance + ($jn->book_amount - $transaction->sum('credit'));
                     $n++;
+                    $transRemark= App\AccountTransaction::where(['journal_id'=>$jn->id, 'status'=>1])->whereNotIn('supplier_id',[$jn->supplier_id])->first();
+                    $remark = $transRemark ? $transRemark->remark : null;                  
                 ?> 
                 <tr>
                   <td>
@@ -134,8 +144,8 @@
                       <span class="checkmark hidden-print" ></span>
                     </label>
                   </td>
-                  <td class="text-left">{{Content::dateformat($jn->entry_date)}}</td>
-                  <td>{{ $jn->remark }}</td>
+                   <td class="text-left">{{Content::dateformat($jn->entry_date)}}</td>
+                  <td>{{ $remark or ''}}</td>
                   <td class="text-left">
                     <?php $project = ''; ?>
                       @if(isset($jn->project))
@@ -148,6 +158,13 @@
                     @if(isset($jn->project))
                       {{$jn->project['project_client']}} <i>x</i> <b>{{$jn->project['project_pax']}}</b>
                     @endif
+                  </td>
+                  <td>
+                   <?php
+                   $supplier=Supplier::where('id',$jn->supplier_id)->first();
+                   $suppliername = $supplier ? $supplier->supplier_name : null;     
+                   ?>
+                   {{$suppliername }}
                   </td>
                   <td class="text-right" style="color:#3c8dbc;">{{Content::money($jn->book_amount - $transaction->sum('credit'))}}</td>          
                   <td class="text-right" style="color:#3c8dbc;">
@@ -183,8 +200,10 @@
           </tbody>
           <tfoot>
             <tr style="background-color: #e8f1ff; font-weight: 700; color: #3c8dbc;">
-              <th colspan="7" class="text-right">Sub Total: {{number_format($totalBalance,2)}}</th>
-              <th class="text-right" colspan="3">Sub Total: {{number_format($totalKBalanceKyat,2)}}</th>
+              <th colspan="7" class="text-right">Sub Total: {{number_format($totalPayBalance,2)}}</th>
+              <th  class="text-right">{{number_format($totalBalance,2)}}</th>
+              <th colspan="2" class="text-right"> {{number_format($totalKPayBalance,2)}}</th>
+              <th class="text-right">{{number_format($totalKBalanceKyat,2)}}</th>
               <th class="text-right"></th>
             </tr>
           </tfoot>
