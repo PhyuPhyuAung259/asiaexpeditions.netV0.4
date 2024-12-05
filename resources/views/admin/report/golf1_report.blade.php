@@ -103,7 +103,7 @@
                           <td class="text-right">{{Content::money($sub->book_kprice)}}</td>
                           <td class="text-right">{{Content::money($sub->book_kamount)}}</td>
                           <?php $total_round=$total_round+ $sub->book_pax;
-                            $grand_total=$grand_total+$bookeds->sum('book_namount');
+                            $grand_total=$grand_total+$sub->book_namount;
                           ?>
                       </tr>
                       </tbody>

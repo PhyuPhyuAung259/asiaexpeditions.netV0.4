@@ -28,8 +28,8 @@ $total_round=0;
                     <td>{{Content::dateformat($sub->book_checkin)}}</td>                    
                     <td>{{$gsv['name']}}</td>
                     <td class="text-center">{{$sub->book_pax}}</td>
-                    <td class="text-right">{{Content::money($sub->book_price)}}</td>
-                    <td class="text-right">{{Content::money($sub->book_amount)}}</td>
+                    <td class="text-right">{{Content::money($sub->book_nprice)}}</td>
+                    <td class="text-right">{{Content::money($sub->book_namount)}}</td>
                     <td class="text-right">{{Content::money($sub->book_kprice)}}</td>
                     <td class="text-right">{{Content::money($sub->book_kamount)}}</td>
                 </tr>
@@ -63,7 +63,7 @@ $total_round=0;
                 <td colspan="2" align="right">
                     <font color="#1991d6">
                         @if($bookeds->sum('book_amount'))
-                            Grand Total : {{Content::money($bookeds->sum('book_amount'))}}  {{Content::currency()}} 
+                            Grand Total : {{Content::money($bookeds->sum('book_namount'))}}  {{Content::currency()}} 
                         @endif
                     </font>
                 </td>
