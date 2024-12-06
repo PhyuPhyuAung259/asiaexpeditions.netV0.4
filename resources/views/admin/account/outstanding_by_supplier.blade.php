@@ -92,10 +92,9 @@ use App\Supplier;
           <button type="submit" class="btn btn-default btn-acc btn-xs hidden-print"><i class="fa  fa-eye"></i> Preview</button>
         </div> -->
         <div class="clearfix"></div><br>
+        <h3 style="color: #3c8dbc;">Oustanding for {{$supplier->supplier_name or ''}}</h3>
         <table class="table tableExcel">
-          <tr   style="background-color: #e8f1ff; color: #3c8dbc;text-align:center; font-size:20;">
-            <th colspan="12" style="text-align:center; font-size:30px;">Oustanding for {{$supplier->supplier_name or ''}}</th>
-          </tr>
+          
           <tr style="background-color: #e8f1ff; color: #3c8dbc;">
             
             <th width="50">
@@ -109,20 +108,35 @@ use App\Supplier;
             <th width="75">FileNo.</th>
             <th>Client Name</th>   
             
-            <th>Supplier</th>         
-            <th class="text-right" title="Amount To Pay/Receive">To Pay</th> 
-            <th class="text-right">Deposit/Paid </th>
-            <th class="text-right" width="112" title="Balance to Pay/Receive">BL To AP/RP</th>            
+            <th>Supplier</th>   
+            @if($conId === 122)      
             <th class="text-right" width="85" title="Amount To Pay {{Content::currency(1)}}">ToPay {{Content::currency(1)}}</th> 
-            <th class="text-right" width="126">Deposit/Paid {{Content::currency(1)}}</th>
-            <th class="text-right" width="117" title="Balance to Pay/Receive">BL To AP/RP{{Content::currency(1)}}</th>
+            <th class="text-right" width="85" title="Amount To Receive {{Content::currency(1)}}">ToReceive {{Content::currency(1)}}</th> 
+            <th class="text-right">Deposit/Paid AP {{Content::currency(1)}} </th>
+            <th class="text-right">Deposit/Paid RP {{Content::currency(1)}}</th>
+            <!-- <th class="text-right" width="117" title="Balance to Pay/Receive">BL To AP/RP{{Content::currency(1)}}</th> -->
+            @else
+            <th class="text-right" title="Amount To Pay/Receive">To Pay</th> 
+            <th class="text-right" title="Amount To Pay/Receive">To Receive</th> 
+            <th class="text-right">Deposit/Paid AP </th>
+            <th class="text-right">Deposit/Paid RP </th>
+            <!-- <th class="text-right" width="112" title="Balance to Pay/Receive">BL To AP/RP</th>             -->
+           @endif
             <!-- <th class="text-right" width="128">Paid From/To</th> -->
           </tr>
             <?php
-              $totalBalance = 0;
-              $totalPayBalance=0;
-              $totalKBalanceKyat = 0;
-              $totalKPayBalance=0;
+              // $totalBalance = 0;
+              // $totalPayBalance=0;
+              // $totalKBalanceKyat = 0;
+              // $totalKPayBalance=0;
+              $toPayBalance=0;
+              $toReceiveBalance=0;
+              $paidBalance=0;
+              $receivedBalance=0;
+              $ktoPayBalance=0;
+              $ktoReceiveBalance=0;
+              $kpaidBalance=0;
+              $kreceivedBalance=0;
               $n=0;
               $remark="";
             ?>
@@ -131,8 +145,11 @@ use App\Supplier;
                 <?php
                   $transaction = App\AccountTransaction::where(['journal_id'=>$jn->id, 'status'=>1])->whereNotIn('supplier_id',[$jn->supplier_id])->get();
                 // dd($transaction->credit);
-                    $totalBalance = $totalBalance + $transaction->sum('credit');
-                    $totalPayBalance=$totalPayBalance + ($jn->book_amount - $transaction->sum('credit'));
+                    $paidBalance = $paidBalance + $transaction->sum('credit');
+                    $receivedBalance=$receivedBalance + $transaction->sum('debit');
+                    $kpaidBalance = $paidBalance + $transaction->sum('kcredit');
+                    $kreceivedBalance=$receivedBalance + $transaction->sum('kdebit');
+                   
                     $n++;
                     $transRemark= App\AccountTransaction::where(['journal_id'=>$jn->id, 'status'=>1])->whereNotIn('supplier_id',[$jn->supplier_id])->first();
                     $remark = $transRemark ? $transRemark->remark : null;                  
@@ -162,49 +179,72 @@ use App\Supplier;
                   <td>
                    <?php
                    $supplier=Supplier::where('id',$jn->supplier_id)->first();
-                   $suppliername = $supplier ? $supplier->supplier_name : null;     
+                   $suppliername = $supplier ? $supplier->supplier_name : null;  
+                   $toPayBalance=$toPayBalance + $jn->debit;
+                   $toReceiveBalance=$toReceiveBalance +  $jn->credit;
+                   $ktoPayBalance=$toPayBalance + $jn->kdebit;
+                   $ktoReceiveBalance=$toReceiveBalance +  $jn->kcredit;   
                    ?>
                    {{$suppliername }}
                   </td>
-                  <td class="text-right" style="color:#3c8dbc;">{{Content::money($jn->book_amount - $transaction->sum('credit'))}}</td>          
-                  <td class="text-right" style="color:#3c8dbc;">
-                      @if($transaction->sum('credit') > 0)
-                        <a href="#" data-toggle="modal" data-url="{{route('loadData')}}"​ data-supplier="{{$jn->supplier_id}}" data-id="{{$jn->id}}" class="PrevViewOutstanding" data-title="{{$project}}" data-target="#myModal">
-                          <strong style="color:#8BC34A;">{{Content::money($transaction->sum('credit'))}}</strong>
-                          <?php $tranBalace = $jn->book_amount - $transaction->sum('credit'); ?>
-                        </a>
-                      @else
-                        <a href="#" data-toggle="modal" class="PrevViewOutstanding" data-target="#myModal" data-url="{{route('loadData')}}" data-supplier="{{$jn->supplier_id}}" data-id="{{$jn->id}}" data-title="{{$project}}">
-                        <?php $tranBalace = $jn->book_amount - $transaction->sum('debit'); ?>
-                          <strong style="color:red;">
-                            {{$transaction->sum('debit') > 0 ? '-'.number_format($transaction->sum('debit'), 2) : ''}}
-                          </strong>
-                        </a>
-                      @endif
-                  </td>
-                  <td class="text-right" style="color:#3c8dbc;font-weight:700;">{{number_format($tranBalace,2)}}</td>
-                  <td class="text-right">{{Content::money($jn->book_kamount - $transaction->sum('kcredit'))}}</td>                
-                  <td class="text-right" style="color:#3c8dbc;">
-                    @if($transaction->sum('kcredit') > 0)
-                      <strong style="color:#8BC34A;">{{Content::money($transaction->sum('kcredit'))}}</strong>
-                    @else
-                      <strong style="color:red;">
-                        {{$transaction->sum('kdebit') > 0 ? number_format($transaction->sum('kdebit'), 2) : ''}}
-                      </strong>
-                    @endif
-                  </td>
-                  <td class="text-right" style="color:#3c8dbc;">{{Content::money($jn->book_kamount)}}</td>
-                  
+                  @if($conId=== 122)
+                    <td class="text-right" style="color:#3c8dbc;">{{Content::money($jn->kdebit)}}</td>  
+                    <td class="text-right" style="color:#3c8dbc;">{{Content::money($jn->kcredit)}}</td>         
+                    <td class="text-right" style="color:#3c8dbc;">
+                      
+                          <a href="#" data-toggle="modal" data-url="{{route('loadData')}}"​ data-supplier="{{$jn->supplier_id}}" data-id="{{$jn->id}}" class="PrevViewOutstanding" data-title="{{$project}}" data-target="#myModal">
+                            <strong style="color:#8BC34A;">{{Content::money($transaction->sum('kcredit'))}}</strong>
+                            <?php $tranBalace = $jn->book_amount - $transaction->sum('kcredit'); ?>
+                          </a>
+                    </td>
+                    <td class="text-right" style="color:#3c8dbc;">
+                          <a href="#" data-toggle="modal" class="PrevViewOutstanding" data-target="#myModal" data-url="{{route('loadData')}}" data-supplier="{{$jn->supplier_id}}" data-id="{{$jn->id}}" data-title="{{$project}}">
+                          <?php $tranBalace = $jn->book_amount - $transaction->sum('kdebit'); ?>
+                            <strong style="color:red;">
+                              {{$transaction->sum('kdebit') > 0 ? '-'.number_format($transaction->sum('kdebit'), 2) : ''}}
+                            </strong>
+                          </a>
+                    </td>
+                    <!-- <td class="text-right" style="color:#3c8dbc;">{{Content::money($jn->book_kamount)}}</td> -->
+                  @else
+                    <td class="text-right" style="color:#3c8dbc;">{{Content::money($jn->debit)}}</td>  
+                    <td class="text-right" style="color:#3c8dbc;">{{Content::money($jn->credit)}}</td>         
+                    <td class="text-right" style="color:#3c8dbc;">
+                      
+                          <a href="#" data-toggle="modal" data-url="{{route('loadData')}}"​ data-supplier="{{$jn->supplier_id}}" data-id="{{$jn->id}}" class="PrevViewOutstanding" data-title="{{$project}}" data-target="#myModal">
+                            <strong style="color:#8BC34A;">{{Content::money($transaction->sum('credit'))}}</strong>
+                            <?php $tranBalace = $jn->book_amount - $transaction->sum('credit'); ?>
+                          </a>
+                    </td>
+                    <td class="text-right" style="color:#3c8dbc;">
+                          <a href="#" data-toggle="modal" class="PrevViewOutstanding" data-target="#myModal" data-url="{{route('loadData')}}" data-supplier="{{$jn->supplier_id}}" data-id="{{$jn->id}}" data-title="{{$project}}">
+                          <?php $tranBalace = $jn->book_amount - $transaction->sum('debit'); ?>
+                            <strong style="color:red;">
+                              {{$transaction->sum('debit') > 0 ? '-'.number_format($transaction->sum('debit'), 2) : ''}}
+                            </strong>
+                          </a>
+                        
+                    </td>
+                    <!-- <td class="text-right" style="color:#3c8dbc;font-weight:700;">{{number_format($tranBalace,2)}}</td> -->
+                  @endif
                 </tr>
               @endforeach
           </tbody>
           <tfoot>
             <tr style="background-color: #e8f1ff; font-weight: 700; color: #3c8dbc;">
-              <th colspan="7" class="text-right">Sub Total: {{number_format($totalPayBalance,2)}}</th>
-              <th  class="text-right">{{number_format($totalBalance,2)}}</th>
-              <th colspan="2" class="text-right"> {{number_format($totalKPayBalance,2)}}</th>
-              <th class="text-right">{{number_format($totalKBalanceKyat,2)}}</th>
-              <th class="text-right"></th>
+                 @if($conId===122)
+                  <td colspan="7" class="text-right" >Total : {{$ktoPayBalance}}</td>
+                  <td class="text-right" >{{$ktoReceiveBalance}}</td>
+                  <td class="text-right" >{{$kpaidBalance}}</td>
+                  <td class="text-right" >{{$kreceivedBalance}}</td>
+                 
+                @else
+                  <td colspan="7" class="text-right" >Total : {{$toPayBalance}}</td>
+                  <td class="text-right" >{{$toReceiveBalance}}</td>
+                  <td class="text-right" >{{$paidBalance}}</td>
+                  <td class="text-right" >{{$receivedBalance}}</td>
+                  
+                @endif
             </tr>
           </tfoot>
         </table>  
