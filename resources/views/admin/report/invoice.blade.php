@@ -50,12 +50,12 @@
 		$Project_total = $grandtotal;
 		}elseif ( $project->vat != Null ){
 		   //  dd($project->vat);
-			$Project_total = $project->project_selling_rate;
-			$Project_vat=$project->project_selling_rate* $project->vat / 100;
-			$Project_total_vat=  $project->project_selling_rate+ ($project->project_selling_rate * $project->vat/100);
+			$Project_total = $project->project_selling_rate - $project->project_cnote_invoice ;
+			$Project_vat= $Project_total * $project->vat / 100;
+			$Project_total_vat=  $project->project_selling_rate+ $Project_vat;
 		}else{
 		     
-			$Project_total =  $project->project_selling_rate ;
+			$Project_total =  $project->project_selling_rate - $project->project_cnote_invoice ;
 		}
 
 	 ?>
@@ -78,7 +78,7 @@
 			<td class="text-right">  <b> VAT {{$project->vat}} %  </b></td>
 			<td class="text-right"> <b>{{ Content::money($Project_vat) }} {{Content::currency()}}</b></td>
 		@endif
-			
+			 
 		</tr>
 		<tr style="background: white;">			
 			<td class="text-right" colspan="2"><strong style="text-transform:uppercase;">Grand Total:</strong></td>

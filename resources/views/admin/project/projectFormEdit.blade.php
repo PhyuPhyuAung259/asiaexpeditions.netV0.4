@@ -85,7 +85,7 @@ $subactive ='booking/project';
                     </div>
                     <div class="col-md-3 col-xs-6">
                       <div class="form-group">
-                        <label>Selling Rate</label> 
+                        <label>Selling Rate (GA)</label> 
                         <input type="text" class="form-control" name="sell_rate" placeholder="Selling Rate" value="{{{ $project->project_selling_rate or old('sell_rate')}}}" />
                       </div> 
                     </div>
@@ -97,7 +97,7 @@ $subactive ='booking/project';
                     </div>
                     <div class="col-md-3 col-xs-6">
                       <div class="form-group">
-                        <label>Agent Cost of Sale</label> 
+                        <label>Agent Cost of Sale (GA)</label> 
                         <input type="text" class="form-control" name="cost_of_sale" placeholder="Cost of Sale" value="{{{ $project->cost_of_sale or old('cost_of_sale')}}}" />
                       </div> 
                     </div>
