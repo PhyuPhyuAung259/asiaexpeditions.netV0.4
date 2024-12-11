@@ -114,13 +114,13 @@ use App\Supplier;
             <th class="text-right" width="85" title="Amount To Receive {{Content::currency(1)}}">ToReceive {{Content::currency(1)}}</th> 
             <th class="text-right">Deposit/Paid AP {{Content::currency(1)}} </th>
             <th class="text-right">Deposit/Paid RP {{Content::currency(1)}}</th>
-            <!-- <th class="text-right" width="117" title="Balance to Pay/Receive">BL To AP/RP{{Content::currency(1)}}</th> -->
+            <th class="text-right" width="117" title="Balance to Pay/Receive">BL To AP/RP{{Content::currency(1)}}</th>
             @else
             <th class="text-right" title="Amount To Pay/Receive">To Pay</th> 
             <th class="text-right" title="Amount To Pay/Receive">To Receive</th> 
             <th class="text-right">Deposit/Paid AP </th>
             <th class="text-right">Deposit/Paid RP </th>
-            <!-- <th class="text-right" width="112" title="Balance to Pay/Receive">BL To AP/RP</th>             -->
+            <th class="text-right" width="112" title="Balance to Pay/Receive">BL To AP/RP</th>            
            @endif
             <!-- <th class="text-right" width="128">Paid From/To</th> -->
           </tr>
@@ -139,21 +139,28 @@ use App\Supplier;
               $kreceivedBalance=0;
               $n=0;
               $remark="";
+              $tranAPBalance = 0;
+              $tranRPBalance =0;
             ?>
           <tbody>
               @foreach($journals as $jn)  
                 <?php
-                  $transaction = App\AccountTransaction::where(['journal_id'=>$jn->id, 'status'=>1])->whereNotIn('supplier_id',[$jn->supplier_id])->get();
-                // dd($transaction->credit);
-                    $paidBalance = $paidBalance + $transaction->sum('credit');
-                    $receivedBalance=$receivedBalance + $transaction->sum('debit');
-                    $kpaidBalance = $paidBalance + $transaction->sum('kcredit');
-                    $kreceivedBalance=$receivedBalance + $transaction->sum('kdebit');
+                    $transaction = App\AccountTransaction::where(['journal_id'=>$jn->id, 'status'=>1])->whereNotIn('supplier_id',[$jn->supplier_id])->get();
                    
                     $n++;
                     $transRemark= App\AccountTransaction::where(['journal_id'=>$jn->id, 'status'=>1])->whereNotIn('supplier_id',[$jn->supplier_id])->first();
-                    $remark = $transRemark ? $transRemark->remark : null;                  
+                    $remark = $transRemark ? $transRemark->remark : null;  
+                    $tranAPBalance = $jn->book_amount - $transaction->sum('credit');
+                    $tranRPBalance = $jn->book_amount - $transaction->sum('debit');    
+                   // dd($tranAPBalance,$tranRPBalance);            
                 ?> 
+                @if($tranAPBalance !== 0.00 && $tranRPBalance!==0.00)
+                <?php
+                 $paidBalance = $paidBalance + $transaction->sum('credit');
+                 $receivedBalance=$receivedBalance + $transaction->sum('debit');
+                 $kpaidBalance = $paidBalance + $transaction->sum('kcredit');
+                 $kreceivedBalance=$receivedBalance + $transaction->sum('kdebit'); 
+                ?>
                 <tr>
                   <td>
                     <label class="container-CheckBox" style="margin-bottom: 0px;"> {{$n}}
@@ -205,7 +212,7 @@ use App\Supplier;
                             </strong>
                           </a>
                     </td>
-                    <!-- <td class="text-right" style="color:#3c8dbc;">{{Content::money($jn->book_kamount)}}</td> -->
+                    <td class="text-right" style="color:#3c8dbc;">{{Content::money($jn->book_kamount)}}</td>
                   @else
                     <td class="text-right" style="color:#3c8dbc;">{{Content::money($jn->debit)}}</td>  
                     <td class="text-right" style="color:#3c8dbc;">{{Content::money($jn->credit)}}</td>         
@@ -225,9 +232,10 @@ use App\Supplier;
                           </a>
                         
                     </td>
-                    <!-- <td class="text-right" style="color:#3c8dbc;font-weight:700;">{{number_format($tranBalace,2)}}</td> -->
+                    <td class="text-right" style="color:#3c8dbc;font-weight:700;">{{number_format($tranBalace,2)}}</td>
                   @endif
                 </tr>
+                @endif
               @endforeach
           </tbody>
           <tfoot>
@@ -237,13 +245,36 @@ use App\Supplier;
                   <td class="text-right" >{{$ktoReceiveBalance}}</td>
                   <td class="text-right" >{{$kpaidBalance}}</td>
                   <td class="text-right" >{{$kreceivedBalance}}</td>
-                 
+                  <td></td>
                 @else
                   <td colspan="7" class="text-right" >Total : {{$toPayBalance}}</td>
                   <td class="text-right" >{{$toReceiveBalance}}</td>
                   <td class="text-right" >{{$paidBalance}}</td>
                   <td class="text-right" >{{$receivedBalance}}</td>
+                  <td></td>
+                @endif
+            </tr>
+            <tr style="background-color: #e8f1ff; font-weight: 700; color: #3c8dbc;">
+            @if($conId===122)
+                  <td colspan="12" class="text-right" >Balance to AP : {{$ktoPayBalance - $kpaidBalance}}</td>
                   
+                 
+                @else
+                <td colspan="12" class="text-right" >Balance to AP : {{$toPayBalance - $paidBalance}}</td>
+               
+                 
+                @endif
+            </tr>
+            <tr style="background-color: #e8f1ff; font-weight: 700; color: #3c8dbc;">
+            @if($conId===122)
+                 
+                  <td colspan="12" class="text-right" >Balance to RP :{{$ktoReceiveBalance - $kreceivedBalance}}</td>
+                  
+               
+                @else
+                
+                <td colspan="12" class="text-right" >Balance to RP :{{$toReceiveBalance - $receivedBalance}}</td>
+                 
                 @endif
             </tr>
           </tfoot>
