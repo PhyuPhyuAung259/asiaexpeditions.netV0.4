@@ -23,7 +23,7 @@
               <div class="col-sm-2 col-xs-6 pull-right" style="text-align: right; position: relative; z-index: 2;">
                 <label class="location">
                   <select class="form-control input-sm locationchange" name="locat">
-                    @foreach(\App\Country::where(['country_status'=>1])->whereHas('entrance')->orderBy('country_name')->get() as $loc)
+                    @foreach(\App\Country::where(['country_status'=>1])->whereHas('supplier')->orderBy('country_name')->get() as $loc)
                       <option value="{{$loc->id}}" {{$locat == $loc->id ? 'selected':''}}>{{$loc->country_name}}</option>
                     @endforeach
                   </select>
