@@ -309,6 +309,10 @@ Route::group(['middleware' => ['IsLogin']], function(){
 		Route::get('account/editAccForm/{id}', 'Account\AccountController@editAccForm')->name('editAccForm');
 		Route::post("updateAcc/{id}", "Account\AccountController@updateAcc")->name("updateAcc");
 		Route::get('removeaccount/{id}',"Account\AccountController@removeAcc")->name("removeAcc");
+
+		//view Client List
+		Route::get('viewClientList/{projectno}',"Admin\ProjectController@viewClientList")->name("viewClientList");
+		
 }); 
  
 

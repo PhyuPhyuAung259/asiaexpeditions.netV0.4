@@ -621,6 +621,12 @@ class ProjectController extends Controller
         return view('admin.project.preview_project', compact('projectBooked'));
     }
 
+    public function viewClientList($projectno){
+        $project=Project::where(['project_number'=>$projectno])->first();
+        $clientlist=ProjectClientName::where(['project_number'=>$projectno])->get();
+        return view('admin.project.viewClientList', compact('project','clientlist'));
+    }
+
     /**
      * Show the form for editing the specified resource.
      *

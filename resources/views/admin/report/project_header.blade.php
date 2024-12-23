@@ -3,7 +3,7 @@
 <table class="table" style="margin-bottom: 0px;">
 	<tr>
 		<td style="border-top: none; border-bottom: 1px solid #f4f4f4; padding-bottom: 0px;">
-			<!--<div><strong style="text-transform: capitalize;">Project {{$type}}</strong></div>-->
+			
 			<div>File/ Project : <b>{{{ $project->project_prefix or ''}}}-{{ isset($project->project_fileno) ? $project->project_fileno: $project->project_number}} </b></div>
 			<div>Pax Number : <b>{{{ $project->project_pax or ''}}}</b></div>
 			<div>Client Name/s : <b>{{{ $project->project_client or ''}}}</b></div>

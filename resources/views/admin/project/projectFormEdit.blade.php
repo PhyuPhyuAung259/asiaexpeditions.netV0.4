@@ -373,7 +373,10 @@ $subactive ='booking/project';
       <div class="modal-content">        
         <div class="modal-header">
           <button type="button" class="close" data-dismiss="modal">&times;</button>
-          <h4 class="modal-title"><strong>Add Client Name For File No. {{$project->project_prefix}}-{{$project->project_fileno ? $project->project_fileno : $project->project_number}}</strong></h4>
+          <h4 class="modal-title"><strong>Add Client Name For File No. {{$project->project_prefix}}-{{$project->project_fileno ? $project->project_fileno : $project->project_number}}   </strong>  </h4>
+          <a  class="text-right" target="_blank" href="{{route('viewClientList', ['project'=>$project->project_number])}}" title="View Client List">
+             View Client List
+          </a>
         </div>
         <div class="modal-body">
           {{csrf_field()}}    
