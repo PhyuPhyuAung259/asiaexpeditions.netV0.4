@@ -108,6 +108,11 @@ class OperationController extends Controller
             $btran->remark         = $req->remark;
 	    	$btran->price 	       = $req->price;
 	    	$btran->kprice         = $req->kprice;
+            $btran->amount          = $req->price
+            ? $req->price * $req->no_of_vehicle
+            : $req->kprice * $req->no_of_vehicle;
+            $btran->no_of_vehicle = $req->no_of_vehicle;
+
             $btran->start_date     =$req->start_date;
           
 	    	$btran->save();
@@ -133,6 +138,11 @@ class OperationController extends Controller
             $btran->pickup_time    = $req->pickup_time;
             $btran->flightno       = $req->flightno;
             $btran->remark         = $req->remark;
+            $btran->amount          = $req->price
+            ? $req->price * $req->no_of_vehicle
+            : $req->kprice * $req->no_of_vehicle;
+            $btran->no_of_vehicle = $req->no_of_vehicle;
+
             $btran->start_date     = $req->start_date;
 	    	$btran->save();
             $message = "Transport Successfully Updated";
@@ -164,6 +174,10 @@ class OperationController extends Controller
             $btran->pickup_time    = $req->pickup_time;
             $btran->flightno       = $req->flightno;
             $btran->remark         = $req->remark;
+            $btran->amount          = $req->price
+            ? $req->price * $req->no_of_vehicle
+            : $req->kprice * $req->no_of_vehicle;
+            $btran->no_of_vehicle = $req->no_of_vehicle;
             $btran->start_date     = $req->start_date;
           //  dd($btran);
 	    	$btran->save();

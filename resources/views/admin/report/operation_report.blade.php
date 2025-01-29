@@ -395,54 +395,7 @@
 								<td colspan="11" class="text-right"><h5><strong>Total {{Content::currency()}} : {{Content::money($cruiseBook->sum('net_amount'))}}</strong></h5></td>
 							</tr>
 					@endif
-					<!-- Tour start-->
-					<?php 
-						$tourNetPrice = \App\Booking::tourNetPrice($project->project_number); 
-						$tourTotal =0; 	
-					?>
-						<tr><th colspan="11" style="border-top:none;"><div><strong style="text-transform: capitalize;">Tour expenses</strong></div></th></tr>
-						<tr style="background-color:#f4f4f4;">
-							<th width="110px">Date</th>
-							<th colspan="7">Title</th>
-							<th>Pax</th>
-							<th class="text-right" width="160px" >Price {{Content::currency()}}</th>
-							<!-- <th class="text-right" width="160px" >Price {{Content::currency(1)}}</th> -->
-							<th>Amount</th>
-							<th>Operation</th>
-						</tr>	
-						@foreach($tourNetPrice->get() as $tour)
-						<?php
-							$amount=$tour->book_pax * $tour->nprice;
-							$tourTotal = $tourTotal + $amount; 
-						?>
-							<tr>
-							<td>
-									<label class="container-CheckBox">{{Content::dateformat($tour->book_checkin)}}
-									  	<input type="checkbox" class="checkall" name="checkedtransport[]" value="{{isset($btran->id) ? $btran->id : '' }}" >
-									  	<span class="checkmark"></span>
-									</label>
-								</td>
-								<td colspan="7">{{{$tour->tour_name or ''}}}</td>
-								<td class="text-right" width="160px" >{{{$tour->book_pax or ''}}}</td>
-								<td class="text-right" width="160px" >{{{$tour->nprice}}}</td>
-								<!-- <td class="text-right" width="160px" >{{{$tour->nprice}}}</td> -->
-								<td>{{{$amount or ''}}}</td>
-								<td> 
-									 <a target="_blank" href="{{route('getBookingVoucher', ['type'=>'Tour',$tour->book_project, $tour->id])}}" title="View Booking Voucher">
-							               	<label class="fa fa-list-alt btn btn-xs" style="font-size:17px; color: #527686;"></label>
-							            </a> 
-								</td>
-							</tr>
-						@endforeach
-						<tr>
-						<td colspan="11" class="text-right">
-								
-									<h5><strong>Total {{Content::currency()}}: {{Content::money($tourTotal)}}</strong></h5>
-								
-								
-							</td>
-						</tr>
-					<!--  Tour end-->
+					
 					<!-- Transport Start-->
 					<?php 
 						$tranBook = \App\Booking::tourBook($project->project_number); 
@@ -458,10 +411,12 @@
 							<th colspan="3">Title</th>
 							<th colspan="2">Service</th>
 							<th>Vehicle</th>
+							<th>No of Vehicle</th>
 							<th>Car Company</th>
 							<th width="100px;">Phone</th>
 							<th class="text-right" width="160px" >Price {{Content::currency()}}</th>
 							<th class="text-right" width="160px" >Price {{Content::currency(1)}}</th>
+							<th>Amount</th>
 							<th>Operation</th>
 						</tr>			
 						@foreach($tranBook->get() as $tran)
@@ -477,7 +432,10 @@
 								if ($btran !== null && is_object($btran)) {
                                     $transportId = $btran->transport_id;
                                     $supplier= App\Supplier::where(['id'=> $transportId])->first();
+									$TranJournal = App\AccountJournal::where(['supplier_id'=>$btran->transport_id, 'business_id'=>7,'project_number'=>$project->project_number, 'book_id'=>$tran->id, 'type'=>1, 'status'=>1])->first();
+
                                 } 
+								
 							?>
 							<tr>
 								<td>
@@ -489,17 +447,37 @@
 								<td colspan="3">{{ $tran->tour_name }} </td>
 								<td colspan="2">{{{ $btran->service->title or ''}}}</td>
 				                <td>{{{ $btran->vehicle->name or ''}}}</td>
+								<td>{{{ $btran->no_of_vehicle or ''}}}</td>
 				                <td>{{{ $supplier->supplier_name or ''}}}</td>
 				                <td>{{{ $supplier->supplier_phone or ''}}}</td> 
 				                <td class="text-right">{{ Content::money($price) }}</td>
 			                  	<td class="text-right">{{ Content::money($kprice) }}</td>
+								  <td>{{{ $btran->amount or ''}}}</td> 
 								<td>
-									<a target="_blank" href="{{route('editoperation', ['type'=>'Transport', 'id'=>$tran->id, 'project_no'=>$tran->book_project , 'tour_id'=>$tran->tour_id])}}" title="Edit Transport">
-                                		<label class="icon-list ic_edit"></label>
-                             		</a>&nbsp;
-									 <a target="_blank" href="{{route('editoperation', ['type'=>'Transport', 'id'=>$tran->id, 'project_no'=>$tran->book_project , 'tour_id'=>$tran->tour_id, 'sub_type'=>'additional transport'])}}" title="Additional Transport">
-                                			<label class="icon-list ic_book_add"></label>
+								@if($TranJournal == Null)    
+						                  	@if(isset($btran->id))
+												<span class="btn btn-acc btn-xs btnRefresh" title="Clear this service" data-type="clear-transport" data-id="{{{$btran->id or ''}}}"><i class="fa fa-refresh"></i></span>
+											@endif      
+						                    <!-- <label title="Edit Service" class="btnEditTran" id="btnEditTran"  data-startdate=">{{Content::dateformat($tran->book_checkin)}}"
+						                    	data-label="{{$tran->tour_name}}" data-type="vehicle" data-restmenu="{{{$btran->service_id or ''}}}" 
+						                    	data-restname="{{{$btran->transport_id or ''}}}" data-vehicle="{{{$btran->vehicle_id or ''}}}" 
+						                    	data-country="{{{$btran->country_id or ''}}}" data-province="{{{$btran->province_id or ''}}}" 
+						                    	data-price="{{{$btran->price or ''}}}" data-kprice="{{{$btran->kprice or ''}}}" 
+						                    	data-phone="{{{$btran->phone or ''}}}" data-id="{{$tran->id}}" data-toggle="modal" data-target="#myModal" >
+						                      <i style="font-size:17px; color: #03A9F4;" class="btn btn-xs fa fa-pencil-square-o"></i>
+						                    </label> -->
+											<a target="_blank" href="{{route('editoperation', ['type'=>'Transport', 'id'=>$tran->id, 'project_no'=>$tran->book_project , 'tour_id'=>$tran->tour_id])}}" title="Edit Transport">
+                                			<label class="icon-list ic_edit"></label>
                              			</a>&nbsp;
+										
+						                @else
+										<span title="Project have been posted. can't edit" style="border-radius: 50px;border: solid 1px #795548; padding: 0px 6px;">Posted</span>&nbsp;
+										<a target="_blank" href="{{route('editoperation', ['type'=>'Transport', 'id'=>$tran->id, 'project_no'=>$tran->book_project , 'tour_id'=>$tran->tour_id, 'sub_type'=>'additional transport'])}}" title="Additional Transport">
+                                			<label class="icon-list ic_book_add"></label>
+                             			</a> 
+						                 
+					                   	@endif
+									
 									 <a target="_blank" href="{{route('getBookingVoucher', ['type'=>'Transport',$tran->book_project, $tran->id])}}" title="View Transport Booking">
 							               	<label class="fa fa-list-alt btn btn-xs" style="font-size:17px; color: #527686;"></label>
 							            </a>  
@@ -554,6 +532,12 @@
 								$guidTotal = $guidTotal + $price;
 								$kprice = isset($bg->kprice)? $bg->kprice :0;
 								$guidkTotal = $guidkTotal + $kprice;
+								if(isset($bg)){
+									$JournalGuide = \App\AccountJournal::where(['supplier_id'=>$bg->supplier_id, 'business_id'=>6,'project_number'=>$project->project_number, 'book_id'=>$tran->id, 'type'=>1 ,'status'=>1])->first();
+									}
+									else{
+										$JournalGuide=null;
+									}
 							?>
 							<tr>
 								<td>
@@ -575,12 +559,21 @@
 								<td>{{{$bg->language->name or ''}}}</td>
 								<td class="text-right">{{Content::money($price)}}</td>
 								<td class="text-right">{{Content::money($kprice)}}</td>
-								<td><a target="_blank" href="{{route('editguideoperation', ['type'=>'guide', 'project_no'=>$tran->book_project, 'id'=>$tran->id , 'tour_id'=>$tran->tour_id])}}" title="Edit Guide">
+								<td>
+								@if($JournalGuide == Null)
+										<a target="_blank" href="{{route('editguideoperation', ['type'=>'guide', 'project_no'=>$tran->book_project, 'id'=>$tran->id , 'tour_id'=>$tran->tour_id])}}" title="Edit Guide">
                                 			<label class="icon-list ic_edit"></label>
                              			</a>&nbsp;
 										 <a target="_blank" href="{{route('editguideoperation', ['type'=>'guide', 'project_no'=>$tran->book_project, 'id'=>$tran->id , 'tour_id'=>$tran->tour_id, 'sub_type'=>'additional guide'])}}" title="Additional Guide">
                                 			<label class="icon-list ic_book_add"></label>
-                             			</a>&nbsp;
+                             			</a> 
+										@else
+											<span title="Project have been posted. can't edit" style="border-radius: 50px;border: solid 1px #795548; padding: 0px 6px;">Posted</span> &nbsp;
+											<a target="_blank" href="{{route('editguideoperation', ['type'=>'guide', 'project_no'=>$tran->book_project, 'id'=>$tran->id , 'tour_id'=>$tran->tour_id, 'sub_type'=>'additional guide'])}}" title="Additional Guide">
+                                			<label class="icon-list ic_book_add"></label>
+                             			</a> 
+											@endif
+									
 										
 								</td>
 							</tr>				
@@ -603,7 +596,8 @@
 
 					<!-- Restaurant Start-->
 					<?php
-					$restBook = \App\BookRestaurant::where('project_number', $project->project_number)->orderBy('start_date');?>
+					$restBook = \App\BookRestaurant::where('project_number', $project->project_number)->orderBy('start_date');
+					?>
 						@if($restBook->count() > 0)
 							<tr>
 								<th style="border-top: none;">
@@ -622,6 +616,8 @@
 								<th>Operation</th>
 			                </tr>		
 							@foreach($restBook->get() as $rest)
+							<?php 					$RJournal = App\AccountJournal::where(['supplier_id'=>$rest['supplier_id'], 'business_id'=>2,'project_number'=>$project->project_number, 'book_id'=>$rest->id, 'type'=>1, 'status'=>1])->first();
+ ?>
 							<tr>
 								<td>
 									<label class="container-CheckBox">{{Content::dateformat($rest->start_date)}}
@@ -636,9 +632,16 @@
 				                <td class="text-right">{{Content::money($rest->amount)}}</td>
 				                <td class="text-right">{{Content::money($rest->kprice)}}</td>
 			                  	<td class="text-right">{{Content::money($rest->kamount)}}</td>
-								<td><a target="_blank" href="{{route('editoperation', ['type'=>'restaurant', 'id'=>$rest->id , 'project_no'=>$rest->project_number])}}" title="Edit Restaurant">
+								<td>@if($RJournal == Null)                  
+					                    <!-- <span class="btnEditTran" data-bus_type="2" data-type="booking_restaurant" data-country="{{$rest->country_id}}" data-province="{{$rest->province_id}}" data-restname="{{{$rest->supplier->id or ''}}}" data-restmenu="{{{$rest->rest_menu->id or ''}}}" data-bookpax="{{ $rest->book_pax}}" data-price="{{$rest->price}}" data-kprice="{{$rest->kprice}}" data-bookdate="{{$rest->start_date}}" data-bookingdate="{{$rest->book_date}}" data-remark="{{$rest->remark}}" data-id="{{$rest->id}}" data-toggle="modal" data-target="#myModal">
+					                      <i style="padding:1px 2px; position: relative;top: -5px;" class="btn btn-info btn-xs fa fa-pencil-square-o"></i>
+					                    </span> -->
+										<a target="_blank" href="{{route('editoperation', ['type'=>'restaurant', 'id'=>$rest->id, 'project_no'=>$rest->project_number])}}" title="Edit Restaurant">
                                 			<label class="icon-list ic_edit"></label>
-                             			</a>&nbsp;</td>
+                             			</a>&nbsp;
+					                @else 
+					                	<span title="Project have been posted. can't edit" style="border-radius: 50px;border: solid 1px #795548; padding: 0px 6px;">Posted</span>  
+				                    @endif</td>
 							</tr>				
 							@endforeach
 							<tr>
@@ -673,7 +676,8 @@
 								<th>Operation</th>
 							</tr>			
 							@foreach($EntranceBook->get() as $rest)
-							<?php $pro = \App\Province::find($rest->province_id); ?>
+							<?php $pro = \App\Province::find($rest->province_id);
+									 $EntJournal = App\AccountJournal::where(['business_id'=>55,'project_number'=>$project->project_number, 'book_id'=>$rest->id, 'type'=>1, 'status'=>1])->first();  ?>
 							<tr>
 								<td>
 									<label class="container-CheckBox">{{Content::dateformat($rest->start_date)}}
@@ -688,9 +692,27 @@
 				                <td class="text-right">{{Content::money($rest->kprice)}}</td>
 			                  	<td class="text-right">{{Content::money($rest->kamount)}}</td>
 								<td>
-									<a target="_blank" href="{{route('editoperation', ['type'=>'entrance', 'id'=>$rest->id, 'project_no'=>$rest->project_number])}}" title="Edit Entrance Fee">
+								@if($rest['supplier_id'] > 0)
+			                  			<a target="_blank" href="{{route('opsVoucher',['type'=>'entrance', 'project'=>$rest->project_number,'supplier'=>$rest->id])}}" title="View Service Voucher">
+				                        	<label class="icon-list ic_inclusion"></label>
+						                </a>
+						                <a target="_blank" href="{{route('opsReservation', ['type'=>'entrance', 'project'=>$rest->project_number,'supplier'=>$rest->id])}}" title="View Reservation Form">
+					                        <label class="icon-list ic_invoice_drop"></label>
+					                    </a> 
+			                  		@endif
+
+			                  		@if($EntJ ournal == Null)
+					                    <!-- <span style="position: relative;top:-5px;" class="btnEditTran" data-type="entrance_fee" data-country="{{$ent->country_id}}" data-province="{{$ent->province_id}}" data-restmenu="{{{ $ent->entrance->id or ''}}}"  data-bookpax="{{ $ent->book_pax}}" data-supplier="{{$ent['supplier']}}" data-price="{{$ent->price}}" data-kprice="{{$ent->kprice}}" data-bookdate="{{$ent->start_date}}"  data-remark="{{$ent->remark}}" data-id="{{$ent->id}}" data-toggle="modal" data-target="#myModal">
+					                      <i style="padding:1px 2px;" class="btn btn-info btn-xs fa fa-pencil-square-o"></i>
+					                    </span> -->
+										<a target="_blank" href="{{route('editoperation', ['type'=>'entrance', 'id'=>$rest->id, 'project_no'=>$rest->project_number])}}" title="Edit Entrance Fee">
                                 			<label class="icon-list ic_edit"></label>
                              		</a>&nbsp;
+								       
+				                    @else
+				                    	<span title="Project have been posted. can't edit" style="border-radius: 50px;border: solid 1px #795548; padding: 0px 6px;">Posted</span>
+			                        @endif
+									 
 								</td>
 							</tr>				
 							@endforeach
@@ -777,7 +799,8 @@
 							            	<?php 
 								            	$miscTotal = $miscTotal + $misc->amount;
 								            	$misckTotal = $misckTotal + $misc->kamount;
-							            	?>
+											 $MiscJournal = App\AccountJournal::where(['business_id'=>54,'project_number'=>$project->project_number, 'book_id'=>$misc->id, 'type'=>1, 'status'=>1])->first(); ?>
+
 						                  	<div class="row">
 							                  	<label class="col-md-6" style="font-weight: 400;">
 							                  	    <span>{{{ $misc->servicetype->name or '' }}}</span>
@@ -797,9 +820,17 @@
 							                  	<label class="col-md-2 text-right" style="font-weight: 400;">
 							                  		<span>{{Content::money($misc->kamount)}}</span> 
 							                  	</label>
-												  <label class="col-md-2 text-right" style="font-weight: 400;">
-							                  		<span><a class="btnEditTran" data-type="apply_misc" href="#" data-id="{{$misc->id}}" data-country="{{$misc->country_id}}" data-province="{{$misc->province_id}}" data-pax="{{$misc->book_pax}}" data-restmenu="{{$misc->service_id}}" data-price="{{$misc->price}}" data-kprice="{{$misc->kprice}}" data-remark="{{$misc->remark}}" data-toggle="modal" data-target="#miscModal"><i style="font-size: 16px;" class="fa fa-pencil"></i></a></span> 
-							                  	</label>
+												  <span class="pull-right">
+							                  			@if($MiscJournal == Null)
+								                  			<a class="btnEditTran" data-type="apply_misc" href="#" data-id="{{$misc->id}}" data-country="{{$misc->country_id}}" data-province="{{$misc->province_id}}" data-pax="{{$misc->book_pax}}" data-restmenu="{{$misc->service_id}}" data-price="{{$misc->price}}" data-kprice="{{$misc->kprice}}" data-remark="{{$misc->remark}}" data-toggle="modal" data-target="#myModal"><i style="font-size: 16px;" class="fa fa-pencil"></i></a>
+
+								                  			<span class="btn btn-xs btnRefresh" title="Clear this service" data-type="clear-misc" data-id="{{$misc->id}}">
+								                  				<label class="icon-list ic-trash"></label>
+								                  			</span>
+								                  		@else
+								                  			<span title="Project have been posted. can't edit" style="border-radius: 50px;border: solid 1px #795548; padding: 0px 6px;">Posted</span>
+								                  		@endif
+							                  		</span>
 							                  	<div class="clearfix"></div>
 						                  	</div>
 						                  	@endforeach
@@ -829,7 +860,7 @@
 
 				@if($Probooked->count() > 0 )
 					<?php 
-						$grandtotal = ($hotelBook->sum('net_amount') + $flightBook->sum('book_namount') + $golfBook->sum('book_namount') + $cruiseBook->sum('net_amount') + $restBook->sum('amount') + $EntranceBook->sum('amount')) + $transportTotal + $guidTotal + $miscTotal+$tourTotal;
+						$grandtotal = ($hotelBook->sum('net_amount') + $flightBook->sum('book_namount') + $golfBook->sum('book_namount') + $cruiseBook->sum('net_amount') + $restBook->sum('amount') + $EntranceBook->sum('amount')) + $transportTotal + $guidTotal + $miscTotal;
 						$grandktotal = ($flightBook->sum('book_kamount') + $golfBook->sum('book_nkamount') + $restBook->sum('kamount') + $EntranceBook->sum('kamount')) + $transportkTotal + $guidkTotal + $misckTotal;
 					?>
 						<!-- End MISC -->

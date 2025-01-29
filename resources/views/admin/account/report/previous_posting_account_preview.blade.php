@@ -939,7 +939,7 @@
 						@endif
                         <!-- Entrance Fees End -->
                          <!-- MISC Start -->
-                            <?php                                                                                                                
+                            <?php 
                                 $MiscBook = App\Booking::tourBook($project->project_number)->get(); 
                                 $miscTotal = 0;
                                 $misckTotal = 0;
@@ -1121,7 +1121,7 @@
 			          	<input type="hidden" name="project_fileno" id="project_fileno" value="{{{$project->project_fileno or ''}}}">
 			          	<input type="hidden" name="business_id" id="business_id"> 
 			          	<input type="hidden" name="supplier_id" id="supplier_name"> 
-                                                        
+			          	
 			          	<input type="hidden" name="bus_type" id="bus_type"> 
 			          	<input type="hidden" name="process_type" id="process_type"> 
 			          	<input type="hidden" name="book_id" id="book_id"> 

@@ -15,8 +15,9 @@ class TourController extends Controller
     public function tourList(Request $req)
     {   
         $locationid = isset($req->location) ? $req->location: \Auth::user()->country_id;
-        $tours = Tour::where(['tour_status'=>1, 'country_id'=>$locationid])->whereNotIn('post_type', [1])->orderBy('id', 'DESC')->get();
+        // $tours = Tour::where(['tour_status'=>1, 'country_id'=>$locationid])->whereNotIn('post_type', [1])->orderBy('id', 'DESC')->get();
         // dd($tours,$locationid);
+         $tours = Tour::where(['country_id'=>$locationid])->orderBy('id', 'DESC')->get();
         return view('admin.tour.tour', compact('tours', 'locationid'));
     }
 

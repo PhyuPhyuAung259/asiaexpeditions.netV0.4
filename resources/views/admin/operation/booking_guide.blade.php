@@ -11,7 +11,7 @@
   @include('admin.include.header')
   @include('admin.include.menuleft')
 	<div class="content-wrapper">
-	    <section class="content"> 
+	    <section class="content">  
 		    <div class="row">
 		      	@include('admin.include.message')
 		        <section class="col-lg-12 connectedSortable">

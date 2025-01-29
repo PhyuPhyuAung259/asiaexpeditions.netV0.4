@@ -103,8 +103,9 @@ use App\Supplier;
                   <span class="checkmark hidden-print"></span>
                 </label>
             </th>
-            <th title="Invoice Paid Date" width="100">INV Paid Date</th>
-            <th width="200">Descriptions</th>
+            <th title="Posting Date" width="100">Posting Date</th>
+            <th title="Travelling Date" width="200">Travelling Date</th>
+            <th >Descriptions</th>
             <th width="75">FileNo.</th>
             <th>Client Name</th>   
             
@@ -151,7 +152,10 @@ use App\Supplier;
                     $transRemark= App\AccountTransaction::where(['journal_id'=>$jn->id, 'status'=>1])->whereNotIn('supplier_id',[$jn->supplier_id])->first();
                     $remark = $transRemark ? $transRemark->remark : null;  
                     $tranAPBalance = $jn->book_amount - $transaction->sum('credit');
-                    $tranRPBalance = $jn->book_amount - $transaction->sum('debit');    
+                    $tranRPBalance = $jn->book_amount - $transaction->sum('debit');   
+                    
+                    //$project=App\Project::where('id',$jn->project_id)->first();
+                //    dd($project->project_start);
                    // dd($tranAPBalance,$tranRPBalance);            
                 ?> 
                 @if($tranAPBalance !== 0.00 && $tranRPBalance!==0.00)
@@ -169,6 +173,11 @@ use App\Supplier;
                     </label>
                   </td>
                    <td class="text-left">{{Content::dateformat($jn->entry_date)}}</td>
+                   <td>
+                     @if(isset($jn->project))
+                      {{Content::dateformat($jn->project->project_start)}} - {{Content::dateformat($jn->project->project_end)}}
+                    @endif
+                  </td>
                   <td>{{ $remark or ''}}</td>
                   <td class="text-left">
                     <?php $project = ''; ?>
@@ -241,13 +250,13 @@ use App\Supplier;
           <tfoot>
             <tr style="background-color: #e8f1ff; font-weight: 700; color: #3c8dbc;">
                  @if($conId===122)
-                  <td colspan="7" class="text-right" >Total : {{$ktoPayBalance}}</td>
+                  <td colspan="8" class="text-right" >Total : {{$ktoPayBalance}}</td>
                   <td class="text-right" >{{$ktoReceiveBalance}}</td>
                   <td class="text-right" >{{$kpaidBalance}}</td>
                   <td class="text-right" >{{$kreceivedBalance}}</td>
                   <td></td>
                 @else
-                  <td colspan="7" class="text-right" >Total : {{$toPayBalance}}</td>
+                  <td colspan="8" class="text-right" >Total : {{$toPayBalance}}</td>
                   <td class="text-right" >{{$toReceiveBalance}}</td>
                   <td class="text-right" >{{$paidBalance}}</td>
                   <td class="text-right" >{{$receivedBalance}}</td>

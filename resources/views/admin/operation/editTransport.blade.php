@@ -69,15 +69,26 @@
 											<select class="form-control vehicle" name="vehicle" id="dropdown-vehicle">
 											</select>
 										</div>
-										
 									</div>
-									<div class="col-md-4 col-xs-3">
+									<div class="col-md-2 col-xs-4">
+										<div class="form-group">
+											<label>No of Vehicle</label>
+											<select class="form-control no_of_vehicle" name="no_of_vehicle">
+												<option value="1">1</option>
+												<option value="2">2</option>
+												<option value="3">3</option>
+												<option value="4">4</option>
+												<option value="5">5</option>
+											</select>
+										</div>
+									</div>
+									<div class="col-md-3 col-xs-2">
 									<div class="form-group">
 										<label>Price {{Content::currency()}}</label>
 										<input type="text" name="price" id="price" class="form-control editprice" placeholder="00.0" readonly>
 									</div>
 									</div>
-									<div class="col-md-4 col-xs-3">
+									<div class="col-md-3 col-xs-2">
 									<div class="form-group">
 										<label>Price {{Content::currency(1)}}</label>
 										<input type="text" name="kprice" id="kprice" class="form-control editprice" placeholder="00.0" readonly>
@@ -219,13 +230,25 @@
 												</select>
 											</div>
 										</div>
-										<div class="col-md-4 col-xs-3">
+										<div class="col-md-2 col-xs-4">
+										<div class="form-group">
+											<label>No of Vehicle</label>
+											<select class="form-control no_of_vehicle" name="no_of_vehicle">
+												<option value="1">1</option>
+												<option value="2">2</option>
+												<option value="3">3</option>
+												<option value="4">4</option>
+												<option value="5">5</option>
+											</select>
+										</div>
+									</div>
+										<div class="col-md-3 col-xs-2">
 										<div class="form-group">
 											<label>Price {{Content::currency()}}</label>
 											<input type="text" name="price" id="price" class="form-control editprice" placeholder="00.0" readonly>
 										</div>
 										</div>
-										<div class="col-md-4 col-xs-3">
+										<div class="col-md-3 col-xs-2">
 										<div class="form-group">
 											<label>Price {{Content::currency(1)}}</label>
 											<input type="text" name="kprice" id="kprice" class="form-control editprice" placeholder="00.0" readonly>

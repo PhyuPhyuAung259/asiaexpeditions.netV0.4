@@ -54,7 +54,7 @@
    
             </div>
             
-            <table class="datatable table table-hover ">
+            <table class="datatable table table-hover " id="table-statement">
               <thead>
                 <tr>
                   <th width="48px" rowspan="2">File No.</th>
@@ -97,9 +97,9 @@
                   </tr>
                 @endforeach
               </tbody>
-              <tfoot>
+             
                   <tr><th colspan="8" class="text-right"><h3>Total Number of Pax: {{$toTalPax}}</h3></th></tr>
-              </tfoot>
+              
             </table>
           </form>
         </section>
@@ -120,13 +120,13 @@
   });
  
   function exportReportToExcel() {
-  let table = document.getElementsByTagName("table"); // you can use document.getElementById('tableId') as well by providing id to the table tag
-  TableToExcel.convert(table[0], { // html code may contain multiple tables so here we are refering to 1st table tag
-    name: `export.xlsx`, // fileName you could use any name
-    sheet: {
-      name: 'Sheet 1' // sheetName
-    }
-  });
+  let table = document.getElementById('table-statement');// you can use document.getElementById('tableId') as well by providing id to the table tag
+  TableToExcel.convert(table, {
+  name: 'statement.xlsx',
+  sheet: {
+    name: 'Sheet 1'
+  }
+});
 }
 </script>
 

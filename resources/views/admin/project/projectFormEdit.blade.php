@@ -157,7 +157,7 @@ $subactive ='booking/project';
                         <label>Location</label>
                         <select class="form-control" name="location">
                           @foreach(App\Country::where('country_status',1)->get() as $con)
-                            <option value="{{$con->id}}" {{$project->country_id == $con->id ? 'selected':''}}>{{$con->country_name}}</option>
+                          <option value="{{$con->id}}" {{ $con->id == old('location', $project->country_id) ? 'selected':''}}>{{$con->country_name}}</option>
                           @endforeach
                         </select>
                       </div>

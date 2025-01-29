@@ -51,7 +51,7 @@
 						                  	<div class="col-md-1">
 						                  		<p><strong>Price{{Content::currency(1)}}</strong></p>
 						                  	</div>
-						                  	<div class="col-md-2">
+						                  	<div class="col-md-2"> 
 						                  		<p><strong>Amount</strong></p>
 						                  	</div>
 					                  	</div>				                
@@ -68,7 +68,7 @@
 							                  		<p>{{Content::money($misc->price)}}</p>
 							                  	</div>
 							                  	<div class="col-md-1">
-							                  		<p>{{Content::money($misc->amount)}}</p>
+							                  		<p>{{Content::money($misc->amount)}}</p> 
 							                  	</div>
 							                  	<div class="col-md-1">
 							                  		<p>{{Content::money($misc->kprice)}}</p>

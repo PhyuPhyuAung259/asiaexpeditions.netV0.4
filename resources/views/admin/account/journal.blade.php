@@ -224,9 +224,8 @@
   $(document).ready(function() {
             $('#business').change(function() {
                 var bus_id = $(this).val();
-                console.log(bus_id);
                 var country_id = $('#country').val(); 
-
+                console.log(country_id);
                 $.ajax({
                     url: '/supplierbybus/' + bus_id + '?country_id=' + country_id, // Adding country_id as query parameter
                     type: 'GET',

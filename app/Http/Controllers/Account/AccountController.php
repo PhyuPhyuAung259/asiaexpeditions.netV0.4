@@ -58,7 +58,7 @@ class AccountController extends Controller
                 $crJournal = new AccountJournal;
                 $crJournal->entry_date = $req->entry_date;
                 $crJournal->user_id = \Auth::user()->id;
-                $crJournal->business_id     = $req->business[$key];
+                $crJournal->business_id     = $req->business[$key]; 
                 $crJournal->supplier_id     = $req->supplier[$key];
                 $crJournal->country_id      = $req->country;
                 $crJournal->account_name_id = $req->account_name[$key];
@@ -111,8 +111,8 @@ class AccountController extends Controller
     }   
     
     public function getJournalJson(){      
-        $suppliers = Booking::whereNotIn("hotel_id", ["","Null"])->groupBy('hotel_id')->orderBy('book_checkin', 'ASC')->get();
-        return view("admin.account.journal", compact('suppliers'));
+        //$suppliers = Booking::whereNotIn("hotel_id", ["","Null"])->groupBy('hotel_id')->orderBy('book_checkin', 'ASC')->get();
+        return view("admin.account.journal");
     }
 
     public function udpateExchangeRate(Request $req){
@@ -322,6 +322,7 @@ class AccountController extends Controller
     }
 
     public function makeToJournal(Request $req){
+    //    dd($req->all());
         $sup_id = !empty($req->supplier_id) ? $req->supplier_id: $req->supplier_name;
         $getPro = AccountJournal::latest('id')->first();
         $entry_code = sprintf("%07d", $getPro['id'] + 1);
