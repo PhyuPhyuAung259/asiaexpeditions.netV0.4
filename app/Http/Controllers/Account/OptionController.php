@@ -239,7 +239,7 @@ class OptionController extends Controller
             }
 
         }elseif ($type == "sup_by_bus") {
-            $getSupplier = Supplier::getSupplierBooked($dataId, $req->selectedid)->get();
+            $getSupplier = Supplier::where(['business_id'=>$dadaId])->get();
             if ($getSupplier->count() > 0 ) {
                 $message .= "<option value=''>--Choose--</option>";
                 foreach ($getSupplier as $key=> $sup) {

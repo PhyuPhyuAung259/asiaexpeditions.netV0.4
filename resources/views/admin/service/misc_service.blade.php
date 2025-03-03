@@ -77,7 +77,7 @@
                 <label>Country <span style="color:#b12f1f;">*</span></label> 
                 <select class="form-control country" id="country" name="country" data-type="country_misc" data-title="tour_bus" required>
                     <option value="">Country</option>
-                  @foreach(App\Country::where('country_status', 1)->whereHas('tour')->orderBy('country_name')->get() as $con)
+                  @foreach(App\Country::where('country_status', 1)->orderBy('country_name')->get() as $con)
                     <option value="{{$con->id}}">{{$con->country_name}}</option>
                   @endforeach
                 </select> 

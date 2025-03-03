@@ -82,7 +82,21 @@ $subactive ='booked/hotel';
                       <label style="font-weight:400;"> <input type="radio" name="status" value="1" {{$book->book_status == 1? 'checked':''}}><span style="position: relative;top:-2px;">Publish</span></label>&nbsp;&nbsp;
                       <label style="font-weight: 400;"> <input type="radio" name="status" value="0" {{$book->book_status == 0? 'checked':''}}><span style="position: relative;top:-2px;">UnPublish</span></label>
                     </div> 
-                  </div>
+                  
+                  <div class="form-group">
+                            <div><label>Option Choice</label>&nbsp;</div>
+                            <label style="font-weight:400;"> 
+                              <input type="radio" name="option" value="0" {{$book->book_option==0?'checked':'' }} >
+                              <span style="position: relative;top:-2px;">Booking</span>
+                            </label>&nbsp;&nbsp;
+                           
+                            <label style="font-weight: 400;">
+                                <input type="radio" name="option" value="1" {{$book->book_option==1?'checked':'' }}>
+                                <span style="position: relative;top:-2px;">Quotation</span>
+                            </label>
+                            
+                        </div>
+                        </div>
                   <div class="panel-footer text-center">
                     <button type="submit" class="btn btn-success btn-flat btn-sm">Submit</button> &nbsp;
                     <a href="{{route('projectList', ['url'=> 'tour'])}}" class="btn btn-default btn-flat btn-sm">Go Bak</a>

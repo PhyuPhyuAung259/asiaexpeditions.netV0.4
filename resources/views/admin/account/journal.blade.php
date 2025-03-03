@@ -58,7 +58,7 @@
                       <tbody id="data_payment_option">
                         <tr class="clone-data">
                           <td>
-                            <select class="form-control input-sm business" name="business[]" data-type="sup_by_bus" id="business" required="">
+                            <select class="form-control input-sm business" name="business[]" id="business" required="">
                               <option value="0">--choose--</option>
                               @foreach(App\Business::where(['category_id'=>0, 'status'=>1])->get() as $key => $bn)
                                 <option value="{{$bn->id}}">{{$bn->name}}</option>
@@ -67,7 +67,7 @@
                           </td>
                           <td style="position: relative;">
                           <!-- <select class="form-control suppliers input-sm" name="supplier[]" id="dropdown_supplier" required=""></select> -->
-                            <select class="form-control suppliers input-sm" name="supplier[]" id="supplier" required>
+                            <select class="form-control supplier input-sm" name="supplier[]" id="supplier" required>
                               <option value="">Select a supplier</option>
                             </select>  
                           </td>
@@ -225,7 +225,7 @@
             $('#business').change(function() {
                 var bus_id = $(this).val();
                 var country_id = $('#country').val(); 
-                console.log(country_id);
+                console.log(bus_id);
                 $.ajax({
                     url: '/supplierbybus/' + bus_id + '?country_id=' + country_id, // Adding country_id as query parameter
                     type: 'GET',

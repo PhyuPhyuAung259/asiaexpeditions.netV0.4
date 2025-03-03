@@ -60,6 +60,7 @@ class BookingController extends Controller
 	        $abook->book_date       = date('Y-m-d');
 	        $abook->book_time       = date('H:i:s');
 	        $abook->book_status 	= $req->status;
+            $abook->book_option     = $req->option;
 	        $abook->save();
             
             return back()->with(['message'=> $bookType.' Booking successfully Update',  'status'=> 'success', 'status_icon'=> 'fa-check-circle']); 

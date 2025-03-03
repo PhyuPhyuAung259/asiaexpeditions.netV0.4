@@ -40,7 +40,7 @@
                         <?php 
                             $totalCruise=0;
                             $totalHotel=0;
-                            $hotelBook  = App\HotelBooked::where('project_number',$project->project_number)->get();
+                            $hotelBook  = App\HotelBooked::where( 'project_number',$project->project_number)->get();
                             $cruiseBook = App\CruiseBooked::where('project_number', $project->project_number)->get();
                             $tourBook   = App\Booking::tourBook($project->project_number)->get();
 						    $flightBook = App\Booking::flightBook($project->project_number)->get();
@@ -52,20 +52,31 @@
                                 $Project_total = $project->project_selling_rate;
                             }
                             $totalRevenue = ($Project_total + $project->project_add_invoice) - $project->project_cnote_invoice; 
+                            //$totalRevenue= $project->project_selling_rate;
                         ?>
                         @if(!empty($totalRevenue))
                             <tr style="background-color:#f4f4f4;">
                                 <th style="border-top: none;" width="170px">Travelling Date</th>
-                                <th style="border-top: none;" colspan="9">Descriptions</th>
-                                <th style="border-top: none; width: 17%;" colspan="2" class="text-left">INV-Amount <span class="pull-right">Received</span></th>
+                                <th style="border-top: none;" colspan="8">Descriptions</th>
+                                <th style="border-top: none; width: 15%;" colspan="2" class="text-left">INV-Amount <span class="pull-right">Received</span></th>
+                                @if(\Auth::user()->role_id == 2)
+                                    <th style="border-top: none;">Posted by</th>
+                                @endif
+                             
                             </tr>
                             <tr>
                                 <td>{{ Content::dateformat($project->project_start) }} -> {{ Content::dateformat($project->project_end) }}</td>
-                                <td colspan="9">{!! $project->project_desc !!}</td>
+                                <td colspan="8">{!! $project->project_desc !!}
+                                @if(!empty($project->project_add_invoice))
+                                    <span>Additional Invoice Amount - {{ Content::money($project->project_add_invoice) }}</span>
+                                @endif
+                                </td>
                                 <td class="" colspan="2">
                                         <?php
                                             $proJournal = App\AccountJournal::where(['supplier_id'=>$project->supplier_id, 'business_id'=>9,'project_number'=>$project->project_number, "book_id"=>$project->id, 'status'=>1])->first();
+                                            
                                             if(isset($proJournal)){
+                                                $user=App\User::find($proJournal->user_id);
                                                 $accTransaction = App\AccountTransaction::where(['journal_id'=> $proJournal->id, 'account_type_id'=>8, 'status'=>1]);
                                                 $color = $accTransaction->sum('debit') == $totalRevenue ? "style=font-weight:700;color:#3c8dbc" : '';
                                             }else{
@@ -90,6 +101,7 @@
                                                 <a target="_blank" href="{{route('getJournalReport', ['journal_entry' => $project->project_number])}}">View/Edit</a>
                                             </span>
                                         @endif
+                                     
                                     @else
                                         @if($totalRevenue > 0)
                                             <span data-toggle="modal" data-target="#loadProjectConfirm" class="btn btn-success btn-xs AddToACcount hidden-print pull-right"
@@ -104,6 +116,9 @@
                                         @endif
                                     @endif
                                 </td>
+                                @if(\Auth::user()->role_id == 2)
+                                    <td>{{{$user->name or ''}}}</td>
+                                @endif
                             </tr>
                         @endif
                         @if(!empty($project->project_net_price))
@@ -111,6 +126,7 @@
                                 <th style="border-top: none;" width="170px"></th>
                                 <th style="border-top: none;" colspan="9"></th>
                                 <th style="border-top: none;" colspan="2"><span class="pull-right">Net Cost</span></th>
+                           
                             </tr>	
                             <tr>
                                 <td>{{ Content::dateformat($project->project_start)}} -> {{ Content::dateformat($project->project_end) }}</td>
@@ -156,9 +172,9 @@
                                 </td>
                             </tr>
                         @endif
-                        <!-- Hotel Start -->
+                        <!-- Credit Note -->
                         <?php 
-                            $hotelBook = App\HotelBooked::where(['project_number'=>$project->project_number, 'status'=>1])->orderBy("checkin")->get();
+                         //   $projectBook = App\HotelBooked::where(['project_number'=>$project->project_number, 'status'=>1])->orderBy("checkin")->get();
                         ?>
                         @if($hotelBook->count()>0)
                             <tr class="hotel">
@@ -171,7 +187,9 @@
                                 <th width="110px">No. Room</th>
                                 <th class="text-center">Nights</th>
                                 <th class="text-left" width="290px">Amount <span class="pull-right">Paid</span></th>
-						    </tr>
+                                @if(\Auth::user()->role_id == 2)
+                                    <th style="border-top: none;">Posted by</th>
+                                @endif						    </tr>
                             @foreach($hotelBook as $hotel)
                             <tr class="container_hotel">
                                 <td><span>{{ Content::dateformat($hotel->checkin)}} -> {{ Content::dateformat($hotel->checkout) }}</span></td>
@@ -184,7 +202,8 @@
                                         $hotelAmount    =   $hotel->net_amount;
                                         $totalHotel     =   $totalHotel + $hotelAmount;
                                         $HproJournal    =   App\AccountJournal::where(['supplier_id'=>$hotel->hotel->id, 'business_id'=>1,'project_number'=>$project->project_number, "book_id"=>$hotel->id, 'status'=>1])->first();
-                                        if(isset($HproJournal)){
+                                         if(isset($HproJournal)){
+                                            $huser=App\User::find($HproJournal->user_id);
                                             $hTransaction = App\AccountTransaction::where(['journal_id'=>$HproJournal['id'], 'status'=>1]); 
                                             $color = $hTransaction->sum('credit') == $totalHotel ? "style=font-weight:700;color:#3c8dbc" : '';
                                         }                                        
@@ -207,6 +226,10 @@
 			          							<a target="_blank" href="{{route('getJournalReport', ['journal_entry'=>$project->project_number])}}">View/Edit</a>
 			          						</span>
 		      							@endif
+                                        @if(\Auth::user()->role_id == 2)
+                                            <td>{{{$huser->name or ''}}}</td>                                
+                                        @endif
+                                    
                                     @else
                                         @if( $hotelAmount > 0)
                                             <span data-toggle="modal" data-target="#loadProjectConfirm" class="btn btn-success btn-xs AddToACcount text-right hidden-print pull-right"
@@ -222,13 +245,14 @@
                                         @endif
                                     @endif
                                 </td>
+                                
                             </tr>
                             @endforeach
                             <tr>
                                 <td colspan="11" class="text-right"><h5><strong>Total: {{ Content::money($totalHotel)}} {{Content::currency()}} </strong></h5></td>
                             </tr>
                         @endif
-                         <!-- Hotel end -->
+                      
                         <!-- Flight Start -->
                         <?php 
                             $flightBook = App\Booking::flightBook($project->project_number)->get(); 
@@ -246,7 +270,10 @@
                                 <th class="text-right">Amount</th>
                                 <th class="text-right">Price {{Content::currency(1)}}</th>
                                 <th class="text-left" style="width: 17%;">Amount <span class="pull-right">Paid</span></th>
-                            </tr>
+                                @if(\Auth::user()->role_id == 2)
+                                    <th style="border-top: none;">Posted by</th>
+                                @endif
+                                                        </tr>
                             @foreach($flightBook as $fl)
                                     <?php $flprice = App\Supplier::find($fl->book_agent);?>		
                                     <tr class="container_flight">
@@ -256,6 +283,7 @@
                                             $flightAmount = $fl->book_namount + $fl->book_nkamount;
                                             $FJournal = App\AccountJournal::where(['supplier_id'=>$flprice['id'], 'business_id'=>4,'project_number'=>$project->project_number, "book_id"=>$fl->id, 'type'=>1, 'status'=>1])->first();
                                                 if(isset($FJournal)){
+                                                    $fuser=App\User::find($FJournal->user_id);
                                                     $fSaction = App\AccountTransaction::where(['journal_id'=>$FJournal['id'], 'status'=>1]);
                                                     $color 	= $fSaction->sum('credit') == $fl->book_namount ? "style=font-weight:700;color:#3c8dbc" : '';
                                                     $colork = $fSaction->sum('kcredit') == $fl->book_nkamount ? "style=font-weight:700;color:#3c8dbc" : '';
@@ -290,7 +318,10 @@
                                                     <span class="btn btn-link btn-xs hidden-print pull-right">
                                                         <a target="_blank" href="{{route('getJournalReport', ['journal_entry'=> $project['project_number']])}}">View/Edit</a></span>
                                                 @endif
-                                                 @endif
+                                            @endif
+                                                @if(\Auth::user()->role_id == 2)
+                                                <td>{{{$fuser->name or '' }}}</td>
+                                                @endif
                                             @else
                                                 @if($flightAmount > 0)
                                                     <span data-toggle="modal" data-target="#loadProjectConfirm" class="btn btn-success btn-xs AddToACcount text-right hidden-print pull-right" 
@@ -346,7 +377,9 @@
                                 <th class="text-right">Amount </th>
                                 <th class="text-right">Price {{Content::currency(1)}}</th>
                                 <th class="text-left">Amount <div class="pull-right">Paid</div></th>
-                            </tr>
+                                @if(\Auth::user()->role_id == 2)
+                                    <th style="border-top: none;">Posted by</th>
+                                @endif                            </tr>
                                 @foreach($golfBook as $gf)			
                                     <?php 
                                         $gsv = App\GolfMenu::find($gf->program_id);
@@ -354,6 +387,7 @@
                                         $TotalKGolf = $TotalKGolf + $gf->book_nkamount;
                                         $GJournal = App\AccountJournal::where(['business_id'=>29, 'supplier_id'=>$gf->golf_id, 'project_number'=>$project['project_number'], "book_id"=>$gf->id, 'type'=>1, 'status'=>1])->first();
                                         if(isset($GJournal)){
+                                            $guser=App\User::find($GJournal->user_id);
                                             $Gsaction = App\AccountTransaction::where(['journal_id'=>$GJournal['id'], 'status'=>1]);
                                             $color 	= $Gsaction->sum('credit') == $gf->book_namount ? "style=font-weight:700;color:#3c8dbc" : '';
                                             $colork = $Gsaction->sum('kdebit') == $gf->book_nkamount ? "style=font-weight:700;color:#3c8dbc" : '';
@@ -367,7 +401,7 @@
                                         <td colspan="3">{{{ $gsv->name or ''}}}</td>
                                         <td class="text-center">{{{ $gf->book_pax or '' }}}</td>			
                                         <td class="text-right">{{{ Content::money($gf->book_nprice) or ''}}}</td>
-                                        <td class="text-right" {{$color}}>
+                                        <td class="text-right" {{{ $color or ''}}}>
                                             @if(!empty($Gsaction))
                                                 {{ $gf->book_namount == $Gsaction->sum('credit') ? Content::money($gf->book_namount) : Content::money($gf->book_namount - $Gsaction->sum('credit')) }}
                                             @else
@@ -398,6 +432,9 @@
                                                     <div><span class=" btn btn-link btn-xs hidden-print pull-right">
                                                     <a target="_blank" href="{{route('getJournalReport', ['journal_entry'=>$project->project_number])}}">View/Edit</a>
                                                     </span></div>	      								
+                                                @endif
+                                                @if(\Auth::user()->role_id == 2)
+                                                    <td>{{{$guser->name or ''}}}</td>
                                                 @endif
                                             @else
                                                 @if($gTotalPayment > 0)
@@ -448,7 +485,9 @@
                                 <th>Room</th>
                                 <th>Night/Cabin</th>
                                 <th class="text-left" style="width: 17%;">Amount <span class="pull-right">Paid</span></th>
-                            </tr>
+                                @if(\Auth::user()->role_id == 2)
+                                    <th style="border-top: none;">Posted by</th>
+                                @endif                            </tr>
                             @foreach($cruiseBook as $crp)			
                                 <?php 
                                     $pcr = App\CrProgram::find($crp->program_id);
@@ -456,6 +495,7 @@
                                     $totalCruise = $totalCruise + $crp->net_amount;
                                     $RJournal = App\AccountJournal::where(['book_id'=>$crp->id, 'supplier_id'=>$crp->cruise_id, 'business_id'=>3,'project_number'=>$project->project_number, 'status'=>1, 'type'=>1 ])->first();
                                     if(isset($RJournal)){
+                                        $ruser=App\User::find($RJournal->user_id);
                                         $rsaction = App\AccountTransaction::where(['journal_id'=>$RJournal['id'], 'status'=>1]); 
                                         $color 	= $rsaction->sum('credit') == $crp->net_amount ? "style=font-weight:700;color:#3c8dbc" : '';
                                     }                                 
@@ -485,6 +525,9 @@
                                                 <span class=" btn btn-link btn-xs hidden-print pull-right">
                                                     <a  target="_blank" href="{{route('getJournalReport', ['journal_entry' => $project->project_number])}}">View/Edit</a>
                                                 </span>
+                                            @endif
+                                            @if(\Auth::user()->role_id == 2)
+                                                <td>{{{$ruser->name or ''}}}</td>
                                             @endif
                                         @else
                                             @if($crp->net_amount > 0)
@@ -530,7 +573,9 @@
                                 <th >Vehicle</th>
                                 <th class="text-right" width="160px">Price {{Content::currency()}}</th>
                                 <th class="text-left" width="160px">Price {{Content::currency(1)}} <span class="pull-right">Paid</span></th>
-                            </tr>			
+                                @if(\Auth::user()->role_id == 2)
+                                    <th style="border-top: none;">Posted by</th>
+                                @endif                            </tr>			
                             @foreach($tranBook as $tran)
                             <?php 
                                 $pro   = App\Province::find($tran->province_id); 
@@ -543,6 +588,7 @@
                                 if ($btran !== null && is_object($btran)) {
                                     $TranJournal = App\AccountJournal::where(['supplier_id'=>$btran['transport_id'], 'business_id'=>7,'project_number'=>$project->project_number, 'book_id'=>$tran->id, 'type'=>1, 'status'=>1])->first();
                                     if(isset($TranJournal)){
+                                        $tranuser=App\User::find($TranJournal->user_id);
                                         $TransacTran = App\AccountTransaction::where(['journal_id'=>$TranJournal['id'], 'status'=>1]);
                                         $color 	= $TransacTran->sum('credit') == $btran['price'] ? "style=font-weight:700;color:#3c8dbc" : '';
                                         $colork	= $TransacTran->sum('kcredit') == $btran['kprice'] ? "style=font-weight:700;color:#3c8dbc" : '';
@@ -588,7 +634,10 @@
                                                     </span>
                                                 @endif
                                         @endif
-                                            @else     
+                                        @if(\Auth::user()->role_id == 2)
+                                                <td>{{{$tranuser->name or ''}}}</td>
+                                            @endif
+                                        @else     
                                                 @if(!empty($TranAmount) && $TranAmount > 0)
                                                
                                                     <span data-toggle="modal" data-target="#loadProjectConfirm" class="btn btn-success btn-xs AddToACcount text-right hidden-print pull-right" 
@@ -643,7 +692,9 @@
                                 <th>Language</th>
                                 <th class="text-right">Price {{Content::currency()}}</th>
                                 <th class="text-left" style="width: 17%;">Price {{Content::currency(1)}}  <span class="pull-right">Paid</span></th>
-                            </tr>			
+                                @if(\Auth::user()->role_id == 2)
+                                    <th style="border-top: none;">Posted by</th>
+                                @endif                            </tr>			
                             @foreach($guideBook as $tran)
                                 <?php 
                                     $pro = App\Province::find($tran->province_id);
@@ -656,6 +707,7 @@
                                     if ($bg !== null && is_object($bg)) {
                                         $GJournal = App\AccountJournal::where(['supplier_id'=>$bg['supplier_id'], 'business_id'=>6,'project_number'=>$project->project_number, 'book_id'=>$tran->id, 'type'=>1 ,'status'=>1])->first();
                                         if(isset($GJournal)){
+                                            $guideUser=App\User::find($GJournal->user_id);
                                             $GAccTran = App\AccountTransaction::where(['journal_id'=>$GJournal['id'], 'status'=>1]);
                                             $color 	= $GAccTran->sum('credit') == $bg['price'] ? "style=font-weight:700;color:#3c8dbc" : '';
                                             $colork	= $GAccTran->sum('kcredit') == $bg['kprice'] ? "style=font-weight:700;color:#3c8dbc" : '';
@@ -698,6 +750,9 @@
                                                             <a target="_blank" href="{{route('getJournalReport', ['journal_entry'=> $project->project_number])}}">View/Edit</a>
                                                         </span>
                                                     @endif
+                                                @endif
+                                                @if(\Auth::user()->role_id == 2)
+                                                    <td>{{{$guideUser->name or ''}}}</td>
                                                 @endif
                                             @else
                                                  @if($gAmount > 0)
@@ -752,11 +807,14 @@
 				                <th class="text-right">Amount</th>
 				                <th class="text-right">Price {{Content::currency(1)}}</th>
 				                <th class="text-left" style="widows: 17%;">Amount <span class="pull-right">Paid</span></th>
-			                </tr>		
+                                @if(\Auth::user()->role_id == 2)
+                                    <th style="border-top: none;">Posted by</th>
+                                @endif			                </tr>		
 							@foreach($restBook as $rest)
 							<?php 
 								$RJournal = App\AccountJournal::where(['supplier_id'=>$rest['supplier_id'], 'business_id'=>2,'project_number'=>$project->project_number, 'book_id'=>$rest->id, 'type'=>1, 'status'=>1])->first();
 								if(isset($RJournal)){
+                                    $Ruser=App\User::find($RJournal->user_id);
 									$RestAccTran = App\AccountTransaction::where(['journal_id'=>$RJournal['id'], 'status'=>1]);
 									$color 	= $RestAccTran->sum('credit') == $rest['amount'] ? "style=font-weight:700;color:#3c8dbc" : '';
 									$colork	= $RestAccTran->sum('kcredit') == $rest['kamount'] ? "style=font-weight:700;color:#3c8dbc" : '';
@@ -800,8 +858,10 @@
         				      						</span>
         			  							@endif
         			  					@endif
-    			  			                
-	                  				    @else
+                                        @if(\Auth::user()->role_id == 2)
+                                            <td>{{{$Ruser->name or ''}}}</td>
+                                        @endif
+	                  				@else
 	                  					@if($ResAmount > 0)
 		                  				<span data-toggle="modal" data-target="#loadProjectConfirm" class="btn btn-success btn-xs AddToACcount text-right hidden-print pull-right"
 	              							data-type="2" data-kamount="{{$rest->kamount}}" 
@@ -854,7 +914,9 @@
 			                  	<th class="text-right">{{Content::currency()}} Amount </th>
 			                  	<th class="text-right">Price</th>
 			                  	<th class="text-left"> {{Content::currency(1)}} Amount <span class="pull-right">Paid</span></th>
-							</tr>
+                                  @if(\Auth::user()->role_id == 2)
+                                    <th style="border-top: none;">Posted by</th>
+                                @endif							</tr>
 							@foreach($EntranceBook as $ent)
 								<?php 
 									$pro = App\Province::find($ent->province_id); 
@@ -864,6 +926,7 @@
 									$entranAmount = $entranAmount + $entAmount;
 	  								$EntJournal = App\AccountJournal::where(['business_id'=>55,'project_number'=>$project->project_number, 'book_id'=>$ent->id, 'type'=>1, 'status'=>1])->first();
 	  								if(isset($EntJournal)){
+                                        $euser=App\User::find($EntJournal->user_id);
 										$EntAccTran = App\AccountTransaction::where(['journal_id'=>$EntJournal['id'], 'status'=>1]);
 	  									$color = ($entAmount - $EntAccTran->sum('credit')) == 0 ? "style=font-weight:700;color:#3c8dbc" : '';
 	              						$colork = ($entKamount - $EntAccTran->sum('kcredit')) == 0 ? "style=font-weight:700;color:#3c8dbc" : '';
@@ -903,6 +966,9 @@
                                                         <a target="_blank" href="{{route('getJournalReport', ['journal_entry'=>$project->project_number])}}">View/Edit</a> </span>
                                                     @endif
                                                 @endif
+                                                @if(\Auth::user()->role_id == 2)
+                                                    <td>{{{$euser->name or ''}}}</td>
+                                                @endif
 	                  			    	    @else
                                             @if($entAmount>0) 
     		                  				<span data-toggle="modal" data-target="#loadProjectConfirm" class="btn btn-success btn-xs AddToACcount text-right hidden-print pull-right"
@@ -939,7 +1005,7 @@
 						@endif
                         <!-- Entrance Fees End -->
                          <!-- MISC Start -->
-                            <?php                                                                                                                
+                            <?php 
                                 $MiscBook = App\Booking::tourBook($project->project_number)->get(); 
                                 $miscTotal = 0;
                                 $misckTotal = 0;
@@ -989,9 +1055,17 @@
                                                             <strong class="pcolor">Price{{Content::currency(1)}}</strong>
                                                         </label>
                                                     </label>
-                                                    <label class="col-md-3 pcolor text-center" style="padding-left: 0px;">
+                                                    <label class="col-md-2 pcolor text-center" style="padding-left: 0px;">
                                                         <strong class="pcolor">Amount <span class="pull-right">Paid &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></strong>
                                                     </label>
+                                                    @if(\Auth::user()->role_id == 2)
+                                                    <label class="col-md-1">
+                                                        <label class="row">
+                                                            <strong class="pcolor">Posted by</strong>
+                                                        </label>
+                                                    </label>
+                                                    @endif
+                                                 
                                                 </div>		                
                                                 @foreach($miscService as $misc)
                                                     <?php 
@@ -1001,6 +1075,7 @@
                                                         $misckTotal = $misckTotal + $misckAmount;
                                                         $MiscJournal = App\AccountJournal::where(['business_id'=>54,'project_number'=>$project->project_number, 'book_id'=>$misc->id, 'type'=>1, 'status'=>1])->first();
                                                         if(isset($MiscJournal)){
+                                                            $miscuser=App\User::find($MiscJournal->user_id);
                                                             $MiscAccTran = App\AccountTransaction::where(['journal_id'=>$MiscJournal['id'], 'status'=>1]);
                                                             $color = ($miscAmount - $MiscAccTran->sum('credit')) == 0 ? "style=font-weight:700;color:#3c8dbc" : '';
                                                             $colork = ($misckAmount - $MiscAccTran->sum('kcredit')) == 0 ? "style=font-weight:700;color:#3c8dbc" : '';
@@ -1028,7 +1103,7 @@
                                                         <label class="col-md-1" style="font-weight: 400;">
                                                             <p>{{ Content::money($misc->kprice) }}</p>
                                                         </label>
-                                                        <label class="col-md-3 text-center" style="font-weight: 400; padding-right: 0px;">
+                                                        <label class="col-md-2 text-center" style="font-weight: 400; padding-right: 0px;">
                                                             @if(!empty($miscAccTran))						                  		
                                                                 <span class="pull-left" {{$colork}}> {{ $misckAmount - $MiscAccTran->sum('kcredit') ? Content::money($misckAmount) : Content::money($misckAmount - $MiscAccTran->sum('kcredit')) }}</span>
                                                             @else
@@ -1043,13 +1118,19 @@
 
                                                                         <span class="btn btn-link btn-xs hidden-print  pull-right">
                                                                             <a  target="_blank" href="{{route('getJournalReport', ['journal_entry' => $project->project_number])}}">View/Edit</a>
-                                                                        </span>		
+                                                                        </span>	
+                                                                        	
                                                                     @elseif($miscAmount >= $MiscJournal['book_amount'] || $misckAmount >= $MiscJournal['book_kamount'] )
                                                                         <span class="btn btn-link btn-xs hidden-print pull-right">
                                                                             <a  target="_blank" href="{{route('getJournalReport', ['journal_entry' => $project->project_number])}}">View/Edit</a>
                                                                         </span>
+                                                                        
                                                                     @endif
+                                                                    
                                                                 @endif
+
+                                                         
+                                                            
                                                             @else
                                                                 
                                                                     @if($MISCTotalAmount > 0)
@@ -1066,6 +1147,11 @@
                                                               
                                                             @endif
                                                         </label>
+                                                        @if(isset($miscuser) && \Auth::user()->role_id == 2)
+                                                        <label class="col-md-1 text-right" style="font-weight: 400;">
+                                                            <p>{{{$miscuser->name or ''}}}</p>
+                                                        </label>
+                                                        @endif
                                                         <div class="clearfix"></div>
                                                     </div>
                                                 @endforeach
@@ -1109,7 +1195,7 @@
      <br><br>
 	@if(isset($project->project_number))
 		<?php 
-			$getGuideBooked = \App\Supplier::where(["supplier_status"=>1, 'country_id' => \Auth::user()->country_id])->whereIn("business_id", [6, 7])->orderBy('created_at', 'desc')->get();
+			$getGuideBooked = \App\Supplier::where(["supplier_status"=>1, 'country_id' => \Auth::user()->country_id])->orderBy('created_at', 'desc')->get();
 		?>
 		<div class="modal" id="loadProjectConfirm" role="dialog"  data-backdrop="static" data-keyboard="true">
 			<div class="modal-dialog modal-lg" >    
@@ -1121,11 +1207,11 @@
 			          	<input type="hidden" name="project_fileno" id="project_fileno" value="{{{$project->project_fileno or ''}}}">
 			          	<input type="hidden" name="business_id" id="business_id"> 
 			          	<input type="hidden" name="supplier_id" id="supplier_name"> 
-                                                        
+			          	
 			          	<input type="hidden" name="bus_type" id="bus_type"> 
 			          	<input type="hidden" name="process_type" id="process_type"> 
 			          	<input type="hidden" name="book_id" id="book_id"> 
-					</div>
+					</div>-
 			      	<div class="modal-content">        
 				        <div class="modal-header" id="loadProjectConfirmheader" style="cursor: move;">
 				          	<button type="button" class="close" data-dismiss="modal">&times;</button>
@@ -1205,7 +1291,7 @@
 						                      	<input type="text" class="kyat-credit form-control input-sm text-right" data-type="kyat-credit" name="kyatcredit" id="kyat-credit" placeholder="00.0" readonly="">
 						                    </td>
 						                </tr>
-						            
+                                                        
 						                <tr>
 						                	<td colspan="7" style="border-top: none;">
 						                		<label>Descriptions</label>

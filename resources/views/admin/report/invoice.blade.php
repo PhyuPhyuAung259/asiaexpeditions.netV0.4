@@ -50,14 +50,14 @@
 		$Project_total = $grandtotal;
 		}elseif ( $project->vat != Null ){
 		   //  dd($project->vat);
-			$Project_total = $project->project_selling_rate - $project->project_cnote_invoice ;
+			//$Project_total = $project->project_selling_rate - $project->project_cnote_invoice ;
 			$Project_vat= $Project_total * $project->vat / 100;
 			$Project_total_vat=  $project->project_selling_rate+ $Project_vat;
 		}else{
 		     
 			$Project_total =  $project->project_selling_rate - $project->project_cnote_invoice ;
 		}
-
+ 
 	 ?>
 	<table class="table table-striped" style="border: solid 1px #c4c2c2;">
 		<tr>
@@ -70,7 +70,13 @@
 			<td>{!! $project->project_desc !!}</td>
 			<td class="text-right"><b>{{ Content::money($Project_total) }} {{Content::currency()}}</b></td>
 		</tr>
-
+		@if($project->project_cnote_invoice != 0)
+		<tr style="height:80px;">
+			<td valign="top">2</td>
+			<td>Credit Note Amount</td>
+			<td class="text-right"><b>{{ Content::money($project->project_cnote_invoice) }} {{Content::currency()}}</b></td>
+		</tr>
+		@endif
 		<tr>
 		@if(isset($Project_vat))
 	

@@ -483,6 +483,7 @@ class ProjectController extends Controller
                 $usertags = \Auth::user()->id;
             }
             $aPro->usertag()->sync($usertags, true);
+         //   dd($req->copy);
             \DB::table('booking')->where('book_project', $req->project_number)->update(['supplier_id'=>$req->agent, 'book_fileno'=>$req->fileno]);
             if (isset($req->copy) && $req->copy == "copy" && $req->option == 0) {
                 // return $req->copy;
@@ -526,6 +527,8 @@ class ProjectController extends Controller
                         $bquot->save();
                     }
                 }
+
+               
 
                 $hbooked=HotelBooked::where(['project_number'=>$req->project_number,'status'=>1])->get();
                 if ($hbooked->count() > 0 ) {

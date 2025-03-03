@@ -349,10 +349,8 @@ class AdminController extends Controller
               }
           }else{
               if ($req->title == "tour_bus" ) {
-                $getProvince= Province::where(['province_status'=>1,'country_id'=>$dataId])->select('id', 'province_name')
-                      ->whereHas('tour', function($query) {
-                        $query->where(['tour_status'=>1]);
-                      })->orderBy('province_name')->get();
+                $getProvince= Province::where(['province_status'=>1,'country_id'=>$dataId])
+                     ->orderBy('province_name')->get();
                 if($getProvince->count() > 0){
                   $message .= "<option value=''>--choose--</option>"; 
                   foreach ($getProvince as $key => $pro) {
@@ -1100,7 +1098,7 @@ class AdminController extends Controller
                 </td>
                 <td class="golf_pax_container" style="width:6%;">';
                 echo '<select class="form-control input-sm golfPax" name="pax[]">';
-                for($n=1; $n<=30; $n++){
+                for($n=1; $n<=100; $n++){
                   echo '<option value="'.$n.'">'.$n.'</option>';
                 }
                 echo '</select>';

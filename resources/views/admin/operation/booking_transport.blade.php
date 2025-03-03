@@ -93,7 +93,7 @@
 					                   	@endif
 									
 					                    @if(isset($btran->id))
-										<a target="_blank" href="{{route('getBookingVoucher', [$tran->book_project, $tran->id])}}" title="View Booking">
+										<a target="_blank" href="{{route('getBookingVoucher', [$tran->book_project, $tran->id,$btran->id])}}" title="View Booking">
 							               	<label class="fa fa-list-alt btn btn-xs" style="font-size:17px; color: #527686;"></label>
 							            </a>   
 							            @endif

@@ -7,9 +7,121 @@
   $status = isset($_GET['status']) ? $_GET['status'] : '';
 ?>
 @section('content')
-<div class="wrapper">
+<style type="text/css">
+
+    .createNetPrice:hover .net_price{
+      display: block;
+    }
+    .net_price{
+      display: none;
+      background: white;
+      border: solid #ddd;
+      box-shadow: 0px 0px 0px 0px #ddd;
+      z-index: 2;
+      position: absolute;
+      padding: 6px;
+    }
+</style>
+
   @include('admin.include.header')
   @include('admin.include.menuleft')
+  
+  @if(\Auth::user()->role_id == 9)
+    <div class="content-wrapper">
+    <section class="content"> 
+        <div class="row">
+          <div class="col-md-12">
+            <h3 class="border">Project List 
+              <div class="pull-right">
+                <select class="form-control input-sm" onchange="this.options[this.selectedIndex].value && (window.location = this.options[this.selectedIndex].value);">
+                  <option value="">--select--</option>
+                  <option {{isset($_GET['status']) && $_GET['status'] == 'Disable' ? 'selected' : ''}} value="{{route('projectList', ['project'=> 'project', 'status'=>'Disable'])}}&checkin={{{$startDate or ''}}}&checkout={{{$endDate or ''}}}">Disable</option>
+                  <option {{isset($_GET['status']) && $_GET['status'] == 'Active' ? 'selected' : ''}} value="{{route('projectList', ['project'=> 'project', 'status'=>'Active'])}}&checkin={{{$startDate or ''}}}&checkout={{{$endDate or ''}}}">Active</option>
+                  <option {{isset($_GET['status']) && $_GET['status'] == 'Inactive' ? 'selected' : ''}} value="{{route('projectList', ['project'=> 'project', 'status'=>'Inactive'])}}&checkin={{{$startDate or ''}}}&checkout={{{$endDate or ''}}}">Inactive</option>
+                </select>
+              </div>
+            </h3>
+          </div>
+          <form method="POST" action="{{route('searchProject', ['project'=> 'project', 'status'=> $status])}}">            
+            {{csrf_field()}}
+            <input type="hidden" name="status" value="{{$status}}">
+            <section class="col-lg-12 connectedSortable">
+              <div class="col-sm-8 col-xs-12 pull-right" style="position: relative; z-index: 2;">
+                <div class="col-md-3 col-xs-5">
+                  <input type="hidden" value="{{{$projectNum or ''}}}" id="projectNum">
+                  <input class="form-control input-sm" type="text" id="from_date" name="start_date" placeholder="Date From" value="{{{$startDate or ''}}}" readonly>  
+                </div>
+                <div class="col-md-3 col-xs-5">
+                  <input class="form-control input-sm" type="text" id="to_date" name="end_date" placeholder="Date To" value="{{{$endDate or ''}}}" readonly>  
+                </div>
+                <div class="col-md-2" style="padding: 0px;">
+                  <button class="btn btn-primary btn-sm" type="submit">Search</button>
+                </div>
+                @if(\Auth::user()->role_id == 2)
+                  <div class="col-md-1" style="padding: 0px;">
+                    <a href="{{route('createPaymentLink')}}" class="btn btn-primary btn-sm">Create Payment Link</a>
+                  </div>
+                @endif
+              </div>
+              <table class="datatable table table-hover table-striped">
+                <thead>
+                  <tr>                       
+                    <th width="53">Project</th>
+                    <th width="51">FileNo.</th>
+                    <th>ClientName</th>
+                    <th width="177">Date From <i class="fa fa-long-arrow-right" style="color: #72afd2"></i> To</th>
+                    <th width="135">Agent</th>
+                    <th width="121">User</th>
+                    <!-- <th>Country</th> -->
+                    <th class="text-center" style="width: 267px;">Sales</th>
+                 
+                  </tr>
+                </thead>
+                <tbody>
+                  @foreach($projects as $project)
+                    <?php 
+                      $sup = App\Supplier::find($project->supplier_id);
+                      $user= App\User::find($project->UserID);
+                      $con = App\Country::find($project->country_id);
+                    ?>
+                    <tr>
+                      <td width="65">
+                        <div class="createNetPrice">
+                          {{$project->project_number}}
+                          <ul class="list-unstyled net_price">
+                            <li><a href="#" data-toggle="modal" class="btnAddNetPrice" data-id="{{$project->project_id}}" data-supplier_agent="{{$project->supplier_agent}}" data-project_net_price="{{$project->project_net_price}}" data-target="#myModal">
+                              {!! $project->project_net_price > 0 ? 'Update Net Price' : ' add Net Price' !!}
+                            </a></li>
+                          </ul> 
+                        </div>
+                      </td>
+                      <td>{{isset($project->project_fileno) ? $project->project_prefix."-".$project->project_fileno : ''}}</td>
+                      <td>{{$project->project_client}} <span title="Pax Number {{$project->project_pax}}" class="badge">{{$project->project_pax}}</span></td>
+                      <td>{{Content::dateformat($project->project_start) }} <i class="fa fa-long-arrow-right" style="color: #72afd2"></i> {{Content::dateformat($project->project_end)}}</td>
+                      <td>{{{ $sup->supplier_name or ''}}}</td>
+                      <td>{{{ $user->fullname or ''}}}</td>
+                      <!-- <td>{{{ $con->country_name or ''}}}</td> -->
+                      <td class="text-center">
+                                     
+                        <a target="_blank" href="{{route('previewProject', ['project'=>$project->project_number, 'type'=>'sales'])}}" title="Prview Details">
+                          <label style="cursor:pointer;" class="icon-list ic_delpro_drop"></lable>
+                      
+                      
+                        </a>       
+                      </td>
+                     
+                    </tr>
+                  @endforeach
+                </tbody>
+              </table> 
+              <!-- <div class="pull-left">Check All</div> -->
+            </section>
+          </form>
+        </div>
+    </section>
+</div>
+  @else
+ 
   <div class="content-wrapper">
     <section class="content"> 
         <div class="row">
@@ -157,21 +269,7 @@
     </section>
 </div>
 
-<style type="text/css">
-
-    .createNetPrice:hover .net_price{
-      display: block;
-    }
-    .net_price{
-      display: none;
-      background: white;
-      border: solid #ddd;
-      box-shadow: 0px 0px 0px 0px #ddd;
-      z-index: 2;
-      position: absolute;
-      padding: 6px;
-    }
-</style>
+    @endif
 
 <div class="modal in" id="myModal" role="dialog"  data-backdrop="static" data-keyboard="true">
   <div class="modal-dialog modal-lg">    
